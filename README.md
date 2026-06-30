@@ -304,17 +304,3 @@ For issues and questions:
 1. Check the [Issues](https://github.com/windbit/agentek-youtrack-mcp/issues) page
 2. Review the documentation
 3. Submit a new issue with detailed information
-
----
-
-*Latest update: Comprehensive custom fields management with 567 test coverage and clean project organization.*
-
-## Version 1.11.1 Released
-
-🎉 **MAJOR FEATURE** - Custom Fields Management Support
-- ✅ Complete custom fields CRUD operations (create, read, update, delete)
-- ✅ Field validation against project schema (all field types supported)
-- ✅ Batch update capabilities for performance
-- ✅ Comprehensive error handling with detailed messages
-- ✅ 567 tests (+68 new tests) with extensive coverage
-- ✅ Clean project organization with `automations/` directory

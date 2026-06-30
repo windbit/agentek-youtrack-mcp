@@ -46,13 +46,13 @@ docker run --rm \
 docker run --rm \
   -e YOUTRACK_URL="https://your.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  windbit/agentek-youtrack-mcp:1.11.1_wip
+  windbit/agentek-youtrack-mcp:1.0.0_wip
 ```
 
 **Available Docker Tags:**
 - `latest` - Latest stable release
-- `1.11.1` - Specific version tags  
-- `1.11.1_wip` - Work-in-progress builds from main branch
+- `1.0.0` - Specific version tags  
+- `1.0.0_wip` - Work-in-progress builds from main branch
 - `pr-<number>` - Pull request builds for testing
 
 ## Configuration
