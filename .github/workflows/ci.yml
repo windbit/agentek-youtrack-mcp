@@ -29,12 +29,10 @@ jobs:
           python-version: '3.11'
 
       - name: Run tests
-        env:
-          YOUTRACK_URL: https://test.youtrack.cloud
-          YOUTRACK_API_TOKEN: test-token
         run: |
           pip install -q -r requirements.txt
-          python -m pytest -q
+          # e2e tests require a real YouTrack instance + credentials; excluded here
+          python -m pytest -m "not e2e" -q
 
   docker:
     name: "🐳 Build & push (GHCR)"
