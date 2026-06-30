@@ -70,9 +70,15 @@ if (existsSync(youtrackMcpSource)) {
     const entries = readdirSync(src);
     
     for (const entry of entries) {
+      // Skip Python caches and compiled/stray artifacts so they never ship in
+      // the npm package (files listed via package.json "files" cannot be
+      // excluded by .npmignore, so we must filter at copy time).
+      if (entry === '__pycache__') continue;
+      if (/\.(pyc|pyo|pyd)$/.test(entry) || entry.endsWith('.py-e')) continue;
+
       const srcPath = join(src, entry);
       const destPath = join(dest, entry);
-      
+
       if (statSync(srcPath).isDirectory()) {
         await copyDir(srcPath, destPath);
       } else {
