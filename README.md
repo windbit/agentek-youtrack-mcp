@@ -180,42 +180,29 @@ Choose from multiple registries:
 
 #### Docker Hub (Primary)
 ```bash
-# Use the latest stable release
+# Use the latest release
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
   windbit/agentek-youtrack-mcp:latest
-
-# Or use the latest development build
-docker run --rm \
-  -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
-  -e YOUTRACK_API_TOKEN="your-token" \
-  windbit/agentek-youtrack-mcp:1.1.2_wip
 ```
 
-#### GitHub Container Registry (New)
+#### GitHub Container Registry
 ```bash
-# Use the latest stable release
+# Use the latest release
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
   ghcr.io/windbit/agentek-youtrack-mcp:latest
-
-# Or use the latest development build
-docker run --rm \
-  -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
-  -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/windbit/agentek-youtrack-mcp:1.1.2_wip
 ```
 
 ### Available Docker Tags
 
 Both registries provide identical tags:
 
-- `latest` - Latest stable release (currently 1.1.2)
-- `1.1.2` - Specific version tags  
-- `1.1.2_wip` - Work-in-progress builds from main branch
-- `pr-<number>` - Pull request builds for testing
+- `latest` - Latest build from the main branch
+- `1.0.0` - Specific release version tags
+- `<commit-sha>` - Exact commit builds
 
 *Note: Images are now published to both Docker Hub and GitHub Container Registry simultaneously.*
 
@@ -230,18 +217,6 @@ npm install -g agentek-youtrack-mcp
 
 # Or use with npx (no installation required)
 npx agentek-youtrack-mcp
-```
-
-#### GitHub Packages (New)
-```bash
-# Configure GitHub registry
-npm config set @windbit:registry https://npm.pkg.github.com
-
-# Install globally
-npm install -g @windbit/agentek-youtrack-mcp
-
-# Or use with npx
-npx @windbit/agentek-youtrack-mcp
 ```
 
 ## Features
@@ -316,17 +291,3 @@ For issues and questions:
 1. Check the [Issues](https://github.com/windbit/agentek-youtrack-mcp/issues) page
 2. Review the documentation
 3. Submit a new issue with detailed information
-
----
-
-*Latest update: Comprehensive custom fields management with 567 test coverage and clean project organization.*
-
-## Version 1.11.1 Released
-
-🎉 **MAJOR FEATURE** - Custom Fields Management Support
-- ✅ Complete custom fields CRUD operations (create, read, update, delete)
-- ✅ Field validation against project schema (all field types supported)
-- ✅ Batch update capabilities for performance
-- ✅ Comprehensive error handling with detailed messages
-- ✅ 567 tests (+68 new tests) with extensive coverage
-- ✅ Clean project organization with `automations/` directory

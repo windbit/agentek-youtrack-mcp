@@ -3,7 +3,7 @@
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -115,9 +115,17 @@ class YouTrackMCPServer {
    * Get server information
    */
   getInfo() {
+    let version = 'unknown';
+    try {
+      // package.json sits one level up from this file in both src/ and dist/
+      const packageJsonPath = join(__dirname, '..', 'package.json');
+      version = JSON.parse(readFileSync(packageJsonPath, 'utf8')).version;
+    } catch {
+      // leave version as 'unknown' if package.json can't be read
+    }
     return {
       name: 'YouTrack MCP Server',
-      version: '1.11.1',
+      version,
       description: 'A Model Context Protocol server for JetBrains YouTrack',
       pythonPath: this.pythonPath,
       serverPath: this.serverPath,

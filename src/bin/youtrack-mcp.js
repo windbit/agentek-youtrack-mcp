@@ -73,7 +73,7 @@ function showVersion() {
     const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
     console.log(`YouTrack MCP Server v${packageJson.version}`);
   } catch (error) {
-    console.log('YouTrack MCP Server v1.11.1');
+    console.log('YouTrack MCP Server (version unknown)');
   }
 }
 
