@@ -121,22 +121,6 @@ Choose your preferred method:
 }
 ```
 
-#### Using GitHub Packages npm:
-```json
-{
-  "mcpServers": {
-    "youtrack": {
-      "command": "npx",
-      "args": ["@windbit/agentek-youtrack-mcp"],
-      "env": {
-        "YOUTRACK_URL": "https://your.youtrack.cloud",
-        "YOUTRACK_API_TOKEN": "your-token"
-      }
-    }
-  }
-}
-```
-
 ## Features
 
 - **Issue Management**: Create, read, update, and delete YouTrack issues
@@ -222,15 +206,6 @@ docker run --rm \
   ghcr.io/windbit/agentek-youtrack-mcp:latest
 ```
 
-#### GitHub Packages npm:
-```bash
-# Set up GitHub registry (one-time setup)
-npm config set @windbit:registry https://npm.pkg.github.com
-
-# Run with npx
-npx @windbit/agentek-youtrack-mcp
-```
-
 ### HTTP Mode
 
 #### npm/Node.js:
@@ -266,15 +241,6 @@ docker run --rm -p 8000:8000 \
 curl http://localhost:8000/api/tools
 ```
 
-#### GitHub Packages npm:
-```bash
-# Start HTTP server
-npx @windbit/agentek-youtrack-mcp --http --port 8000
-
-# Test the server
-curl http://localhost:8000/api/tools
-```
-
 ### Development Mode
 
 #### npm/Node.js:
@@ -299,12 +265,6 @@ docker run --rm \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
   ghcr.io/windbit/agentek-youtrack-mcp:latest --log-level DEBUG
-```
-
-#### GitHub Packages npm:
-```bash
-# Run with debug logging
-npx @windbit/agentek-youtrack-mcp -- --log-level DEBUG
 ```
 
 ## Troubleshooting
@@ -367,23 +327,6 @@ docker login ghcr.io
 docker pull ghcr.io/windbit/agentek-youtrack-mcp:latest
 ```
 
-### GitHub Packages Issues
-
-#### npm Registry Configuration
-```bash
-# If @windbit/agentek-youtrack-mcp is not found, configure the registry
-npm config set @windbit:registry https://npm.pkg.github.com
-
-# You might need authentication for GitHub Packages npm
-npm login --registry=https://npm.pkg.github.com
-```
-
-#### Package Not Found
-If GitHub Packages npm shows "package not found":
-- The package is published only on releases
-- Check if a release has been created
-- Fallback to npmjs.org version: `npm install -g agentek-youtrack-mcp`
-
 ### Common Issues (Both Options)
 
 #### Connection Issues
@@ -407,8 +350,7 @@ If you can't connect to YouTrack:
 - ✅ Need to modify or debug the server
 
 **Registry Options:**
-- **npmjs.org** (recommended): `agentek-youtrack-mcp` - Better discovery, wider usage
-- **GitHub Packages**: `@windbit/agentek-youtrack-mcp` - Integrated with GitHub, requires registry config
+- **npmjs.org**: `agentek-youtrack-mcp`
 
 ### Choose **Docker** if you:
 - ✅ Want isolated, consistent environments
@@ -429,7 +371,6 @@ If you can't connect to YouTrack:
 - **Docker Hub**: [windbit/agentek-youtrack-mcp](https://hub.docker.com/r/windbit/agentek-youtrack-mcp)
 - **GitHub Container Registry**: [ghcr.io/windbit/agentek-youtrack-mcp](https://github.com/windbit/agentek-youtrack-mcp/pkgs/container/youtrack-mcp)
 - **npmjs.org**: [agentek-youtrack-mcp](https://www.npmjs.com/package/agentek-youtrack-mcp)
-- **GitHub Packages npm**: [@windbit/agentek-youtrack-mcp](https://github.com/windbit/agentek-youtrack-mcp/pkgs/npm/%40windbit%2Fagentek-youtrack-mcp)
 
 ## License
 

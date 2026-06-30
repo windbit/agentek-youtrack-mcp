@@ -232,18 +232,6 @@ npm install -g agentek-youtrack-mcp
 npx agentek-youtrack-mcp
 ```
 
-#### GitHub Packages (New)
-```bash
-# Configure GitHub registry
-npm config set @windbit:registry https://npm.pkg.github.com
-
-# Install globally
-npm install -g @windbit/agentek-youtrack-mcp
-
-# Or use with npx
-npx @windbit/agentek-youtrack-mcp
-```
-
 ## Features
 
 - **Issue Management**: Create, read, update, and delete YouTrack issues
