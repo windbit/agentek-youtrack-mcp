@@ -1,6 +1,6 @@
 {
-  "name": "youtrack-mcp-tonyzorin",
-  "version": "1.17.2",
+  "name": "agentek-youtrack-mcp",
+  "version": "1.0.0",
   "description": "A Model Context Protocol (MCP) server for JetBrains YouTrack integration",
   "keywords": [
     "mcp",
@@ -11,23 +11,23 @@
     "claude",
     "ai"
   ],
-  "homepage": "https://github.com/tonyzorin/youtrack-mcp",
+  "homepage": "https://github.com/windbit/agentek-youtrack-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tonyzorin/youtrack-mcp.git"
+    "url": "https://github.com/windbit/agentek-youtrack-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/tonyzorin/youtrack-mcp/issues"
+    "url": "https://github.com/windbit/agentek-youtrack-mcp/issues"
   },
   "author": {
-    "name": "Anton Zorin",
-    "url": "https://antonzorin.com"
+    "name": "Agentek",
+    "url": "https://github.com/windbit"
   },
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "youtrack-mcp-tonyzorin": "dist/bin/youtrack-mcp.js"
+    "agentek-youtrack-mcp": "dist/bin/youtrack-mcp.js"
   },
   "files": [
     "dist",

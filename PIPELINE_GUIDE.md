@@ -54,7 +54,7 @@ node dist/bin/youtrack-mcp.js --version
 
 # Test package installation
 npm pack                   # Create .tgz file
-npm install -g ./youtrack-mcp-tonyzorin-*.tgz
+npm install -g ./agentek-youtrack-mcp-*.tgz
 ```
 
 ### Test Organization
@@ -73,18 +73,18 @@ tests/
 - **When**: Push to `main` branch
 - **What**: Builds Docker images with development tags
 - **Tags Created**:
-  - `tonyzorin/youtrack-mcp:{version}_wip`
-  - `tonyzorin/youtrack-mcp:dev-{commit-sha}`
-  - `ghcr.io/tonyzorin/youtrack-mcp:{version}_wip`
-  - `ghcr.io/tonyzorin/youtrack-mcp:dev-{commit-sha}`
+  - `windbit/agentek-youtrack-mcp:{version}_wip`
+  - `windbit/agentek-youtrack-mcp:dev-{commit-sha}`
+  - `ghcr.io/windbit/agentek-youtrack-mcp:{version}_wip`
+  - `ghcr.io/windbit/agentek-youtrack-mcp:dev-{commit-sha}`
 
 ### Usage
 ```bash
 # Use the latest WIP build
-docker pull tonyzorin/youtrack-mcp:1.11.6_wip
+docker pull windbit/agentek-youtrack-mcp:1.11.6_wip
 
 # Or specific commit
-docker pull tonyzorin/youtrack-mcp:dev-b7858ce
+docker pull windbit/agentek-youtrack-mcp:dev-b7858ce
 ```
 
 ## 🚀 Production Builds
@@ -127,10 +127,10 @@ Publish Packages: ✓
 ```
 
 ### Production Tags Created
-- `tonyzorin/youtrack-mcp:{version}`
-- `tonyzorin/youtrack-mcp:latest`
-- `ghcr.io/tonyzorin/youtrack-mcp:{version}`
-- `ghcr.io/tonyzorin/youtrack-mcp:latest`
+- `windbit/agentek-youtrack-mcp:{version}`
+- `windbit/agentek-youtrack-mcp:latest`
+- `ghcr.io/windbit/agentek-youtrack-mcp:{version}`
+- `ghcr.io/windbit/agentek-youtrack-mcp:latest`
 
 ## 📦 Multi-Registry Support
 
@@ -138,14 +138,14 @@ Publish Packages: ✓
 
 #### Docker Hub (Primary)
 ```bash
-docker pull tonyzorin/youtrack-mcp:latest
-docker pull tonyzorin/youtrack-mcp:1.11.6
+docker pull windbit/agentek-youtrack-mcp:latest
+docker pull windbit/agentek-youtrack-mcp:1.11.6
 ```
 
 #### GitHub Container Registry (Backup)
 ```bash
-docker pull ghcr.io/tonyzorin/youtrack-mcp:latest
-docker pull ghcr.io/tonyzorin/youtrack-mcp:1.11.6
+docker pull ghcr.io/windbit/agentek-youtrack-mcp:latest
+docker pull ghcr.io/windbit/agentek-youtrack-mcp:1.11.6
 ```
 
 ### NPM Registries
@@ -153,35 +153,35 @@ docker pull ghcr.io/tonyzorin/youtrack-mcp:1.11.6
 #### npmjs.org (Public)
 ```bash
 # Install globally
-npm install -g youtrack-mcp-tonyzorin
+npm install -g agentek-youtrack-mcp
 
 # Or use directly with npx
-npx youtrack-mcp-tonyzorin
+npx agentek-youtrack-mcp
 
 # Specific version
-npm install -g youtrack-mcp-tonyzorin@1.11.6
+npm install -g agentek-youtrack-mcp@1.11.6
 ```
 
 #### GitHub Packages (Scoped)
 ```bash
 # Configure registry
-npm config set @tonyzorin:registry https://npm.pkg.github.com
+npm config set @windbit:registry https://npm.pkg.github.com
 
 # Install globally
-npm install -g @tonyzorin/youtrack-mcp
+npm install -g @windbit/agentek-youtrack-mcp
 
 # Or with explicit registry
-npm install -g @tonyzorin/youtrack-mcp --registry=https://npm.pkg.github.com
+npm install -g @windbit/agentek-youtrack-mcp --registry=https://npm.pkg.github.com
 ```
 
 ### Package Types
 
 | Type | Registry | Name | Use Case |
 |------|----------|------|-----------|
-| **Docker** | Docker Hub | `tonyzorin/youtrack-mcp` | Container environments, Claude Desktop |
-| **Docker** | GitHub Container Registry | `ghcr.io/tonyzorin/youtrack-mcp` | GitHub ecosystem, backup |
-| **NPM** | npmjs.org | `youtrack-mcp-tonyzorin` | Node.js environments, CLI usage |
-| **NPM** | GitHub Packages | `@tonyzorin/youtrack-mcp` | Private/scoped installs |
+| **Docker** | Docker Hub | `windbit/agentek-youtrack-mcp` | Container environments, Claude Desktop |
+| **Docker** | GitHub Container Registry | `ghcr.io/windbit/agentek-youtrack-mcp` | GitHub ecosystem, backup |
+| **NPM** | npmjs.org | `agentek-youtrack-mcp` | Node.js environments, CLI usage |
+| **NPM** | GitHub Packages | `@windbit/agentek-youtrack-mcp` | Private/scoped installs |
 
 ## 🔧 Workflow Details
 
@@ -239,7 +239,7 @@ git merge feature/my-feature
 git push origin main
 
 # → Triggers: all tests + dev build
-# → Creates: tonyzorin/youtrack-mcp:1.11.6_wip
+# → Creates: windbit/agentek-youtrack-mcp:1.11.6_wip
 ```
 
 ### 3. Ready for Release

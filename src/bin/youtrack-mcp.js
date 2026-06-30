@@ -20,8 +20,8 @@ function showHelp() {
 📋 YouTrack MCP Server CLI
 
 Usage:
-  npx youtrack-mcp-tonyzorin [options] [-- server-args]
-  youtrack-mcp-tonyzorin [options] [-- server-args]
+  npx agentek-youtrack-mcp [options] [-- server-args]
+  agentek-youtrack-mcp [options] [-- server-args]
 
 Options:
   --help, -h           Show this help message
@@ -39,16 +39,16 @@ Environment Variables:
 
 Examples:
   # Run with stdio transport (for Claude Desktop)
-  npx youtrack-mcp-tonyzorin
+  npx agentek-youtrack-mcp
 
   # Run with HTTP transport
-  npx youtrack-mcp-tonyzorin --http --port 8000
+  npx agentek-youtrack-mcp --http --port 8000
 
   # Pass arguments to the Python server
-  npx youtrack-mcp-tonyzorin -- --log-level DEBUG
+  npx agentek-youtrack-mcp -- --log-level DEBUG
 
   # Set environment variables inline
-  YOUTRACK_URL=https://your.youtrack.cloud YOUTRACK_API_TOKEN=your-token npx youtrack-mcp-tonyzorin
+  YOUTRACK_URL=https://your.youtrack.cloud YOUTRACK_API_TOKEN=your-token npx agentek-youtrack-mcp
 
 Configuration for Claude Desktop:
 Add this to your Claude Desktop config:
@@ -56,7 +56,7 @@ Add this to your Claude Desktop config:
   "mcpServers": {
     "youtrack": {
       "command": "npx",
-      "args": ["youtrack-mcp-tonyzorin"],
+      "args": ["agentek-youtrack-mcp"],
       "env": {
         "YOUTRACK_URL": "https://your.youtrack.cloud",
         "YOUTRACK_API_TOKEN": "your-token"

@@ -1,5 +1,3 @@
-[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/tonyzorin-youtrack-mcp-badge.png)](https://mseep.ai/app/tonyzorin-youtrack-mcp)
-
 # YouTrack MCP
 
 A Model Context Protocol (MCP) server that provides access to YouTrack functionality.
@@ -170,7 +168,7 @@ delete_attachment("DEMO-123", "1-456")
 
 ## Installation
 
-[![Docker Build and Push](https://github.com/tonyzorin/youtrack-mcp/actions/workflows/docker-build.yml/badge.svg)](https://github.com/tonyzorin/youtrack-mcp/actions/workflows/docker-build.yml)
+[![Docker Build and Push](https://github.com/windbit/agentek-youtrack-mcp/actions/workflows/docker-build.yml/badge.svg)](https://github.com/windbit/agentek-youtrack-mcp/actions/workflows/docker-build.yml)
 
 This project provides a Model Context Protocol (MCP) server for YouTrack, enabling seamless integration with Claude Desktop and other MCP clients.
 
@@ -186,13 +184,13 @@ Choose from multiple registries:
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest
+  windbit/agentek-youtrack-mcp:latest
 
 # Or use the latest development build
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:1.1.2_wip
+  windbit/agentek-youtrack-mcp:1.1.2_wip
 ```
 
 #### GitHub Container Registry (New)
@@ -201,13 +199,13 @@ docker run --rm \
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/tonyzorin/youtrack-mcp:latest
+  ghcr.io/windbit/agentek-youtrack-mcp:latest
 
 # Or use the latest development build
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/tonyzorin/youtrack-mcp:1.1.2_wip
+  ghcr.io/windbit/agentek-youtrack-mcp:1.1.2_wip
 ```
 
 ### Available Docker Tags
@@ -228,22 +226,22 @@ Choose from multiple registries:
 #### npmjs.org (Primary)
 ```bash
 # Install globally
-npm install -g youtrack-mcp-tonyzorin
+npm install -g agentek-youtrack-mcp
 
 # Or use with npx (no installation required)
-npx youtrack-mcp-tonyzorin
+npx agentek-youtrack-mcp
 ```
 
 #### GitHub Packages (New)
 ```bash
 # Configure GitHub registry
-npm config set @tonyzorin:registry https://npm.pkg.github.com
+npm config set @windbit:registry https://npm.pkg.github.com
 
 # Install globally
-npm install -g @tonyzorin/youtrack-mcp
+npm install -g @windbit/agentek-youtrack-mcp
 
 # Or use with npx
-npx @tonyzorin/youtrack-mcp
+npx @windbit/agentek-youtrack-mcp
 ```
 
 ## Features
@@ -315,10 +313,9 @@ export YOUTRACK_VERIFY_SSL="true"
 ## Support
 
 For issues and questions:
-1. Check the [Issues](https://github.com/tonyzorin/youtrack-mcp/issues) page
+1. Check the [Issues](https://github.com/windbit/agentek-youtrack-mcp/issues) page
 2. Review the documentation
 3. Submit a new issue with detailed information
-4. Contact directly: [t.me/tonyzorin](https://t.me/tonyzorin)
 
 ---
 
