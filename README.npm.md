@@ -1,7 +1,7 @@
 # YouTrack MCP Server
 
-[![npm version](https://badge.fury.io/js/youtrack-mcp-tonyzorin.svg)](https://www.npmjs.com/package/youtrack-mcp-tonyzorin)
-[![npm downloads](https://img.shields.io/npm/dm/youtrack-mcp-tonyzorin.svg)](https://www.npmjs.com/package/youtrack-mcp-tonyzorin)
+[![npm version](https://badge.fury.io/js/agentek-youtrack-mcp.svg)](https://www.npmjs.com/package/agentek-youtrack-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/agentek-youtrack-mcp.svg)](https://www.npmjs.com/package/agentek-youtrack-mcp)
 
 A Model Context Protocol (MCP) server for JetBrains YouTrack, enabling seamless integration with Claude Desktop and other MCP clients.
 
@@ -14,22 +14,22 @@ Choose your preferred installation method:
 **Installation:**
 ```bash
 # Install globally
-npm install -g youtrack-mcp-tonyzorin
+npm install -g agentek-youtrack-mcp
 
 # Or use with npx (no installation required)
-npx youtrack-mcp-tonyzorin
+npx agentek-youtrack-mcp
 ```
 
 **Usage:**
 ```bash
 # Run with stdio transport (for Claude Desktop)
-npx youtrack-mcp-tonyzorin
+npx agentek-youtrack-mcp
 
 # Run with HTTP transport
-npx youtrack-mcp-tonyzorin --http --port 8000
+npx agentek-youtrack-mcp --http --port 8000
 
 # Show help
-npx youtrack-mcp-tonyzorin --help
+npx agentek-youtrack-mcp --help
 ```
 
 ### Option 2: Docker
@@ -40,13 +40,13 @@ npx youtrack-mcp-tonyzorin --help
 docker run --rm \
   -e YOUTRACK_URL="https://your.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest
+  windbit/agentek-youtrack-mcp:latest
 
 # Or use the latest development build
 docker run --rm \
   -e YOUTRACK_URL="https://your.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:1.11.1_wip
+  windbit/agentek-youtrack-mcp:1.11.1_wip
 ```
 
 **Available Docker Tags:**
@@ -77,7 +77,7 @@ Choose your preferred method:
   "mcpServers": {
     "youtrack": {
       "command": "npx",
-      "args": ["youtrack-mcp-tonyzorin"],
+      "args": ["agentek-youtrack-mcp"],
       "env": {
         "YOUTRACK_URL": "https://your.youtrack.cloud",
         "YOUTRACK_API_TOKEN": "your-token"
@@ -97,7 +97,7 @@ Choose your preferred method:
         "run", "--rm",
         "-e", "YOUTRACK_URL=https://your.youtrack.cloud",
         "-e", "YOUTRACK_API_TOKEN=your-token",
-        "tonyzorin/youtrack-mcp:latest"
+        "windbit/agentek-youtrack-mcp:latest"
       ]
     }
   }
@@ -114,7 +114,7 @@ Choose your preferred method:
         "run", "--rm",
         "-e", "YOUTRACK_URL=https://your.youtrack.cloud",
         "-e", "YOUTRACK_API_TOKEN=your-token",
-        "ghcr.io/tonyzorin/youtrack-mcp:latest"
+        "ghcr.io/windbit/agentek-youtrack-mcp:latest"
       ]
     }
   }
@@ -127,7 +127,7 @@ Choose your preferred method:
   "mcpServers": {
     "youtrack": {
       "command": "npx",
-      "args": ["@tonyzorin/youtrack-mcp"],
+      "args": ["@windbit/agentek-youtrack-mcp"],
       "env": {
         "YOUTRACK_URL": "https://your.youtrack.cloud",
         "YOUTRACK_API_TOKEN": "your-token"
@@ -173,7 +173,7 @@ Once configured, you can use these commands in Claude:
 
 ```
 Usage:
-  npx youtrack-mcp-tonyzorin [options] [-- server-args]
+  npx agentek-youtrack-mcp [options] [-- server-args]
 
 Options:
   --help, -h           Show help message
@@ -201,7 +201,7 @@ export YOUTRACK_URL="https://prodcamp.youtrack.cloud"
 export YOUTRACK_API_TOKEN="your-token"
 
 # Run the server
-npx youtrack-mcp-tonyzorin
+npx agentek-youtrack-mcp
 ```
 
 #### Docker Hub:
@@ -210,7 +210,7 @@ npx youtrack-mcp-tonyzorin
 docker run --rm \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest
+  windbit/agentek-youtrack-mcp:latest
 ```
 
 #### GitHub Container Registry:
@@ -219,16 +219,16 @@ docker run --rm \
 docker run --rm \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/tonyzorin/youtrack-mcp:latest
+  ghcr.io/windbit/agentek-youtrack-mcp:latest
 ```
 
 #### GitHub Packages npm:
 ```bash
 # Set up GitHub registry (one-time setup)
-npm config set @tonyzorin:registry https://npm.pkg.github.com
+npm config set @windbit:registry https://npm.pkg.github.com
 
 # Run with npx
-npx @tonyzorin/youtrack-mcp
+npx @windbit/agentek-youtrack-mcp
 ```
 
 ### HTTP Mode
@@ -236,7 +236,7 @@ npx @tonyzorin/youtrack-mcp
 #### npm/Node.js:
 ```bash
 # Start HTTP server on port 8000
-npx youtrack-mcp-tonyzorin --http --port 8000
+npx agentek-youtrack-mcp --http --port 8000
 
 # Test the server
 curl http://localhost:8000/api/tools
@@ -248,7 +248,7 @@ curl http://localhost:8000/api/tools
 docker run --rm -p 8000:8000 \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest --transport http --host 0.0.0.0
+  windbit/agentek-youtrack-mcp:latest --transport http --host 0.0.0.0
 
 # Test the server
 curl http://localhost:8000/api/tools
@@ -260,7 +260,7 @@ curl http://localhost:8000/api/tools
 docker run --rm -p 8000:8000 \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/tonyzorin/youtrack-mcp:latest --transport http --host 0.0.0.0
+  ghcr.io/windbit/agentek-youtrack-mcp:latest --transport http --host 0.0.0.0
 
 # Test the server
 curl http://localhost:8000/api/tools
@@ -269,7 +269,7 @@ curl http://localhost:8000/api/tools
 #### GitHub Packages npm:
 ```bash
 # Start HTTP server
-npx @tonyzorin/youtrack-mcp --http --port 8000
+npx @windbit/agentek-youtrack-mcp --http --port 8000
 
 # Test the server
 curl http://localhost:8000/api/tools
@@ -280,7 +280,7 @@ curl http://localhost:8000/api/tools
 #### npm/Node.js:
 ```bash
 # Run with debug logging
-npx youtrack-mcp-tonyzorin -- --log-level DEBUG
+npx agentek-youtrack-mcp -- --log-level DEBUG
 ```
 
 #### Docker Hub:
@@ -289,7 +289,7 @@ npx youtrack-mcp-tonyzorin -- --log-level DEBUG
 docker run --rm \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest --log-level DEBUG
+  windbit/agentek-youtrack-mcp:latest --log-level DEBUG
 ```
 
 #### GitHub Container Registry:
@@ -298,13 +298,13 @@ docker run --rm \
 docker run --rm \
   -e YOUTRACK_URL="https://prodcamp.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/tonyzorin/youtrack-mcp:latest --log-level DEBUG
+  ghcr.io/windbit/agentek-youtrack-mcp:latest --log-level DEBUG
 ```
 
 #### GitHub Packages npm:
 ```bash
 # Run with debug logging
-npx @tonyzorin/youtrack-mcp -- --log-level DEBUG
+npx @windbit/agentek-youtrack-mcp -- --log-level DEBUG
 ```
 
 ## Troubleshooting
@@ -328,7 +328,7 @@ sudo apt-get install python3
 #### Permission Errors
 ```bash
 # Check your YouTrack API token
-npx youtrack-mcp-tonyzorin --info
+npx agentek-youtrack-mcp --info
 
 # Verify your environment variables
 echo $YOUTRACK_URL
@@ -346,7 +346,7 @@ docker --version
 docker run --rm \
   -e YOUTRACK_URL="https://your.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest --version
+  windbit/agentek-youtrack-mcp:latest --version
 ```
 
 #### Port Already in Use
@@ -355,7 +355,7 @@ docker run --rm \
 docker run --rm -p 8001:8000 \
   -e YOUTRACK_URL="https://your.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
-  tonyzorin/youtrack-mcp:latest --transport http
+  windbit/agentek-youtrack-mcp:latest --transport http
 ```
 
 #### GitHub Container Registry Authentication
@@ -364,15 +364,15 @@ docker run --rm -p 8001:8000 \
 docker login ghcr.io
 
 # Then try pulling again
-docker pull ghcr.io/tonyzorin/youtrack-mcp:latest
+docker pull ghcr.io/windbit/agentek-youtrack-mcp:latest
 ```
 
 ### GitHub Packages Issues
 
 #### npm Registry Configuration
 ```bash
-# If @tonyzorin/youtrack-mcp is not found, configure the registry
-npm config set @tonyzorin:registry https://npm.pkg.github.com
+# If @windbit/agentek-youtrack-mcp is not found, configure the registry
+npm config set @windbit:registry https://npm.pkg.github.com
 
 # You might need authentication for GitHub Packages npm
 npm login --registry=https://npm.pkg.github.com
@@ -382,7 +382,7 @@ npm login --registry=https://npm.pkg.github.com
 If GitHub Packages npm shows "package not found":
 - The package is published only on releases
 - Check if a release has been created
-- Fallback to npmjs.org version: `npm install -g youtrack-mcp-tonyzorin`
+- Fallback to npmjs.org version: `npm install -g agentek-youtrack-mcp`
 
 ### Common Issues (Both Options)
 
@@ -407,8 +407,8 @@ If you can't connect to YouTrack:
 - ✅ Need to modify or debug the server
 
 **Registry Options:**
-- **npmjs.org** (recommended): `youtrack-mcp-tonyzorin` - Better discovery, wider usage
-- **GitHub Packages**: `@tonyzorin/youtrack-mcp` - Integrated with GitHub, requires registry config
+- **npmjs.org** (recommended): `agentek-youtrack-mcp` - Better discovery, wider usage
+- **GitHub Packages**: `@windbit/agentek-youtrack-mcp` - Integrated with GitHub, requires registry config
 
 ### Choose **Docker** if you:
 - ✅ Want isolated, consistent environments
@@ -417,23 +417,20 @@ If you can't connect to YouTrack:
 - ✅ Want guaranteed dependency compatibility
 
 **Registry Options:**
-- **Docker Hub** (recommended): `tonyzorin/youtrack-mcp` - Faster, no auth required
-- **GitHub Container Registry**: `ghcr.io/tonyzorin/youtrack-mcp` - Integrated with GitHub, may require auth
+- **Docker Hub** (recommended): `windbit/agentek-youtrack-mcp` - Faster, no auth required
+- **GitHub Container Registry**: `ghcr.io/windbit/agentek-youtrack-mcp` - Integrated with GitHub, may require auth
 
 ## Support
 
-- **GitHub**: [Issues and bug reports](https://github.com/tonyzorin/youtrack-mcp/issues)
-- **Documentation**: [Full documentation](https://github.com/tonyzorin/youtrack-mcp)
+- **GitHub**: [Issues and bug reports](https://github.com/windbit/agentek-youtrack-mcp/issues)
+- **Documentation**: [Full documentation](https://github.com/windbit/agentek-youtrack-mcp)
 
 ### Package Registries
-- **Docker Hub**: [tonyzorin/youtrack-mcp](https://hub.docker.com/r/tonyzorin/youtrack-mcp)
-- **GitHub Container Registry**: [ghcr.io/tonyzorin/youtrack-mcp](https://github.com/tonyzorin/youtrack-mcp/pkgs/container/youtrack-mcp)
-- **npmjs.org**: [youtrack-mcp-tonyzorin](https://www.npmjs.com/package/youtrack-mcp-tonyzorin)
-- **GitHub Packages npm**: [@tonyzorin/youtrack-mcp](https://github.com/tonyzorin/youtrack-mcp/pkgs/npm/%40tonyzorin%2Fyoutrack-mcp)
-
-### Contact
-- **Telegram**: [t.me/tonyzorin](https://t.me/tonyzorin)
+- **Docker Hub**: [windbit/agentek-youtrack-mcp](https://hub.docker.com/r/windbit/agentek-youtrack-mcp)
+- **GitHub Container Registry**: [ghcr.io/windbit/agentek-youtrack-mcp](https://github.com/windbit/agentek-youtrack-mcp/pkgs/container/youtrack-mcp)
+- **npmjs.org**: [agentek-youtrack-mcp](https://www.npmjs.com/package/agentek-youtrack-mcp)
+- **GitHub Packages npm**: [@windbit/agentek-youtrack-mcp](https://github.com/windbit/agentek-youtrack-mcp/pkgs/npm/%40windbit%2Fagentek-youtrack-mcp)
 
 ## License
 
-MIT © Tony Zorin 
+MIT

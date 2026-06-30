@@ -27,7 +27,7 @@ docker build -t youtrack-mcp-local .
 # Push changes
 git push origin main
 ```
-**Result**: Automatic WIP build triggered → `tonyzorin/youtrack-mcp:X.X.X-wip`
+**Result**: Automatic WIP build triggered → `windbit/agentek-youtrack-mcp:X.X.X-wip`
 
 ### 2. Development Testing
 ```bash
@@ -44,8 +44,8 @@ gh workflow run ci.yml --field build_type=test_only
 gh workflow run ci.yml --field build_type=dev_build
 ```
 **Result**: 
-- `tonyzorin/youtrack-mcp:X.X.X-wip`
-- `tonyzorin/youtrack-mcp:<commit-sha>`
+- `windbit/agentek-youtrack-mcp:X.X.X-wip`
+- `windbit/agentek-youtrack-mcp:<commit-sha>`
 
 ## Production Deployment (Protected)
 
@@ -71,8 +71,8 @@ gh workflow run ci.yml \
 ```
 
 **Result**: 
-- `tonyzorin/youtrack-mcp:X.X.X` (production)
-- `tonyzorin/youtrack-mcp:latest` (production)
+- `windbit/agentek-youtrack-mcp:X.X.X` (production)
+- `windbit/agentek-youtrack-mcp:latest` (production)
 - NPM package published
 - GitHub release created (if requested)
 
@@ -136,7 +136,7 @@ gh workflow run ci.yml \
 ### If Accidental Production Deploy
 1. Check what was deployed:
    ```bash
-   curl -s "https://registry.hub.docker.com/v2/repositories/tonyzorin/youtrack-mcp/tags" | jq -r '.results[0:5][] | "\(.name) - \(.last_updated)"'
+   curl -s "https://registry.hub.docker.com/v2/repositories/windbit/agentek-youtrack-mcp/tags" | jq -r '.results[0:5][] | "\(.name) - \(.last_updated)"'
    ```
 
 2. If needed, revert by deploying previous version:
