@@ -36,24 +36,17 @@ npx agentek-youtrack-mcp --help
 
 **Using Docker Hub:**
 ```bash
-# Use the latest stable release
+# Use the latest release
 docker run --rm \
   -e YOUTRACK_URL="https://your.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
   windbit/agentek-youtrack-mcp:latest
-
-# Or use the latest development build
-docker run --rm \
-  -e YOUTRACK_URL="https://your.youtrack.cloud" \
-  -e YOUTRACK_API_TOKEN="your-token" \
-  windbit/agentek-youtrack-mcp:1.0.0_wip
 ```
 
 **Available Docker Tags:**
-- `latest` - Latest stable release
-- `1.0.0` - Specific version tags  
-- `1.0.0_wip` - Work-in-progress builds from main branch
-- `pr-<number>` - Pull request builds for testing
+- `latest` - Latest build from the main branch
+- `1.0.0` - Specific release version tags
+- `<commit-sha>` - Exact commit builds
 
 ## Configuration
 

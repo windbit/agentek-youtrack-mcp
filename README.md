@@ -180,42 +180,29 @@ Choose from multiple registries:
 
 #### Docker Hub (Primary)
 ```bash
-# Use the latest stable release
+# Use the latest release
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
   windbit/agentek-youtrack-mcp:latest
-
-# Or use the latest development build
-docker run --rm \
-  -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
-  -e YOUTRACK_API_TOKEN="your-token" \
-  windbit/agentek-youtrack-mcp:1.1.2_wip
 ```
 
-#### GitHub Container Registry (New)
+#### GitHub Container Registry
 ```bash
-# Use the latest stable release
+# Use the latest release
 docker run --rm \
   -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
   -e YOUTRACK_API_TOKEN="your-token" \
   ghcr.io/windbit/agentek-youtrack-mcp:latest
-
-# Or use the latest development build
-docker run --rm \
-  -e YOUTRACK_URL="https://your-instance.youtrack.cloud" \
-  -e YOUTRACK_API_TOKEN="your-token" \
-  ghcr.io/windbit/agentek-youtrack-mcp:1.1.2_wip
 ```
 
 ### Available Docker Tags
 
 Both registries provide identical tags:
 
-- `latest` - Latest stable release (currently 1.1.2)
-- `1.1.2` - Specific version tags  
-- `1.1.2_wip` - Work-in-progress builds from main branch
-- `pr-<number>` - Pull request builds for testing
+- `latest` - Latest build from the main branch
+- `1.0.0` - Specific release version tags
+- `<commit-sha>` - Exact commit builds
 
 *Note: Images are now published to both Docker Hub and GitHub Container Registry simultaneously.*
 
