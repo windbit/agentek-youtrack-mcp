@@ -374,7 +374,32 @@ class TestBasicOperations:
             issue_id=issue_id,
             summary=new_summary,
             description=new_description,
+            uses_markdown=None,
             additional_fields=additional_fields
+        )
+
+    def test_update_issue_threads_uses_markdown(self):
+        """uses_markdown must be forwarded to the API layer, not dropped."""
+        # Arrange
+        issue_id = "DEMO-123"
+        mock_updated_issue = Mock()
+        mock_updated_issue.model_dump.return_value = {"id": "3-123"}
+        self.mock_issues_api.update_issue.return_value = mock_updated_issue
+
+        # Act
+        self.basic_ops.update_issue(
+            issue_id=issue_id,
+            description="**bold**",
+            uses_markdown=True,
+        )
+
+        # Assert
+        self.mock_issues_api.update_issue.assert_called_once_with(
+            issue_id=issue_id,
+            summary=None,
+            description="**bold**",
+            uses_markdown=True,
+            additional_fields=None,
         )
 
     def test_update_issue_with_dict_response(self):
