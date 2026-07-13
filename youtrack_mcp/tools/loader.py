@@ -325,6 +325,27 @@ def load_all_tools() -> Dict[str, Callable]:
     return tools
 
 
+def tool_description(func: Callable) -> Any:
+    """
+    Build the description an MCP client sees for a tool.
+
+    Renders the tool's `tool_definition` (description + parameter_descriptions) into text.
+    Returns None when the tool has no definition, so FastMCP falls back to the docstring.
+    """
+    definition = getattr(func, "tool_definition", None)
+    if not definition or not definition.get("description"):
+        return None
+
+    lines = [definition["description"]]
+    parameters = definition.get("parameter_descriptions") or {}
+    if parameters:
+        lines.append("")
+        lines.append("Parameters:")
+        lines.extend(f"- {name}: {text}" for name, text in parameters.items())
+
+    return "\n".join(lines)
+
+
 def _get_tools_from_class(tool_class: Any) -> Dict[str, Callable]:
     """
     Get all tools from a tool class.

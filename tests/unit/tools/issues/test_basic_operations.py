@@ -216,7 +216,7 @@ class TestBasicOperations:
         
         # Verify project lookup and issue creation
         self.mock_projects_api.get_project_by_name.assert_called_once_with(project)
-        self.mock_issues_api.create_issue.assert_called_once_with("0-1", summary, description)
+        self.mock_issues_api.create_issue.assert_called_once_with("0-1", summary, description, custom_fields=None)
 
     def test_create_issue_success_with_project_id(self):
         """Test successful issue creation with project ID."""
@@ -236,7 +236,25 @@ class TestBasicOperations:
         
         # Verify no project lookup was needed
         self.mock_projects_api.get_project_by_name.assert_not_called()
-        self.mock_issues_api.create_issue.assert_called_once_with(project, summary, None)
+        self.mock_issues_api.create_issue.assert_called_once_with(project, summary, None, custom_fields=None)
+
+    def test_create_issue_custom_fields_sent_in_single_call(self):
+        """Custom fields must reach the create call, not a follow-up update."""
+        # Arrange
+        custom_fields = {"Priority": "Critical", "Assignee": "john.doe"}
+        mock_created_issue = Mock()
+        mock_created_issue.id = "3-123"
+        mock_created_issue.model_dump.return_value = {"id": "3-123"}
+        self.mock_issues_api.create_issue.return_value = mock_created_issue
+
+        # Act
+        self.basic_ops.create_issue("0-1", "Test issue", custom_fields=custom_fields)
+
+        # Assert
+        self.mock_issues_api.create_issue.assert_called_once_with(
+            "0-1", "Test issue", None, custom_fields=custom_fields
+        )
+        self.mock_issues_api.update_issue_custom_fields.assert_not_called()
 
     def test_create_issue_missing_project(self):
         """Test create_issue with missing project."""

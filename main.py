@@ -11,7 +11,7 @@ from mcp.server.fastmcp import FastMCP
 
 from youtrack_mcp.version import __version__ as APP_VERSION
 from youtrack_mcp.config import config
-from youtrack_mcp.tools.loader import load_all_tools
+from youtrack_mcp.tools.loader import load_all_tools, tool_description
 
 # Set up logging
 logging.basicConfig(
@@ -34,7 +34,7 @@ def create_server(host: str = "0.0.0.0", port: int = 8000) -> FastMCP:
     # Load and register all tools
     tools = load_all_tools()
     for name, func in tools.items():
-        mcp.add_tool(func, name=name)
+        mcp.add_tool(func, name=name, description=tool_description(func))
 
     logger.info(f"Registered {len(tools)} tools with FastMCP")
     return mcp

@@ -129,9 +129,25 @@ class IssueTools:
         """Search for issues using YouTrack query syntax."""
         return self.basic_operations.search_issues(query, limit)
     
-    def create_issue(self, project: str, summary: str, description: Optional[str] = None) -> str:
-        """Create a new issue in the specified project."""
-        return self.basic_operations.create_issue(project, summary, description)
+    def create_issue(
+        self,
+        project: str,
+        summary: str,
+        description: Optional[str] = None,
+        custom_fields: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Create a new issue in the specified project, optionally setting custom fields in the same request.
+
+        custom_fields maps field names to values and is sent together with the issue itself.
+        Projects whose mandatory fields have no default value reject a create without them,
+        so pass those fields here instead of updating the issue afterwards.
+        Use get_custom_fields / get_available_custom_field_values to discover names and allowed values.
+
+        Example: create_issue(project="DEMO", summary="Bug in login",
+                              description="Users cannot log in",
+                              custom_fields={"Priority": "Critical", "Type": "Bug", "Assignee": "john.doe"})
+        """
+        return self.basic_operations.create_issue(project, summary, description, custom_fields)
     
     def update_issue(self, issue_id: str, summary: Optional[str] = None, description: Optional[str] = None, uses_markdown: Optional[bool] = None, additional_fields: Optional[Dict[str, Any]] = None) -> str:
         """Update basic issue fields."""

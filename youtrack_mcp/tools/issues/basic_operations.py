@@ -107,7 +107,8 @@ class BasicOperations:
             project: The project identifier (e.g., "DEMO", "PROJECT")
             summary: The issue title/summary
             description: Optional detailed description of the issue
-            custom_fields: Optional dictionary of custom field names and values to set on creation (e.g., {"Assignee": "john.doe", "Priority": "Critical"})
+            custom_fields: Optional dictionary of custom field names and values, sent in the same API call as the issue
+                (required for projects where mandatory fields have no default value)
 
         Returns:
             JSON string with the created issue information
@@ -161,21 +162,13 @@ class BasicOperations:
             # Call the API client to create the issue
             try:
                 issue = self.issues_api.create_issue(
-                    project_id, summary, description
+                    project_id, summary, description, custom_fields=custom_fields
                 )
 
                 # Check if we got an issue with an ID
                 if isinstance(issue, dict) and issue.get("error"):
                     # Handle error returned as a dict
                     return format_json_response(issue)
-
-                # Apply custom fields if provided
-                if custom_fields and hasattr(issue, "id") and issue.id:
-                    try:
-                        logger.info(f"Setting custom fields on new issue {issue.id}: {custom_fields}")
-                        self.issues_api.update_issue_custom_fields(issue.id, custom_fields, validate=False)
-                    except Exception as cf_err:
-                        logger.warning(f"Issue created but failed to set custom fields: {cf_err}")
 
                 # Try to get full issue details right after creation
                 if hasattr(issue, "id"):
@@ -300,12 +293,12 @@ class BasicOperations:
                 }
             },
             "create_issue": {
-                "description": "Create a new issue in YouTrack with automatic project validation. Accepts both project short names (DEMO) and project IDs (0-1). Supports setting custom fields at creation time. Example: create_issue(project='DEMO', summary='Bug in login', description='Users cannot log in', custom_fields={'Assignee': 'john.doe', 'Priority': 'Critical'})",
+                "description": "Create a new issue in YouTrack with automatic project validation. Accepts both project short names (DEMO) and project IDs (0-1). Custom fields are sent in the same API call as the issue, so projects with mandatory fields (no default value) can be created in one step. Example: create_issue(project='DEMO', summary='Bug in login', description='Users cannot log in', custom_fields={'Assignee': 'john.doe', 'Priority': 'Critical'})",
                 "parameter_descriptions": {
                     "project": "Project identifier (short name like 'DEMO' or ID like '0-1')",
                     "summary": "Issue title/summary (required)",
                     "description": "Detailed description of the issue (optional)",
-                    "custom_fields": "Optional dictionary of custom field names to values to set on creation (e.g., {'Assignee': 'john.doe', 'Priority': 'Critical', 'Fix versions': ['1.0', '1.1']})"
+                    "custom_fields": "Optional dictionary of custom field names to values, applied atomically with issue creation (e.g., {'Assignee': 'john.doe', 'Priority': 'Critical', 'Fix versions': ['1.0', '1.1']})"
                 }
             },
             "update_issue": {
