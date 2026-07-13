@@ -183,6 +183,7 @@ class IssuesClient:
         summary: str,
         description: Optional[str] = None,
         additional_fields: Optional[Dict[str, Any]] = None,
+        custom_fields: Optional[Dict[str, Any]] = None,
     ) -> Issue:
         """
         Create a new issue.
@@ -192,6 +193,9 @@ class IssuesClient:
             summary: The issue summary
             description: The issue description
             additional_fields: Additional fields to set on the issue
+            custom_fields: Custom field names/values sent in the same POST as
+                the issue itself — projects whose required fields have no
+                default value reject a create without them
 
         Returns:
             The created issue data
@@ -208,6 +212,11 @@ class IssuesClient:
 
         if description:
             data["description"] = description
+
+        if custom_fields:
+            data.update(
+                self._build_custom_fields_payload(custom_fields, project_id)
+            )
 
         if additional_fields:
             data.update(additional_fields)
