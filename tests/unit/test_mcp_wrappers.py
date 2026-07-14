@@ -264,23 +264,25 @@ class TestNormalizeParameterNames:
         assert "project" not in result
 
     @pytest.mark.unit
-    def test_normalize_issue_tools_project_parameter(self):
-        """Test parameter normalization for issue tools project parameter."""
-        kwargs = {"project_id": "TEST"}
+    def test_normalize_create_issue_project_parameter(self):
+        """create_issue's own parameter is project_id, so a bare 'project' alias
+        (e.g. from an agent that guessed the old name) is normalized to it,
+        consistent with every other project-identifier tool."""
+        kwargs = {"project": "TEST"}
 
         result = normalize_parameter_names("create_issue", kwargs)
 
-        assert result == {"project": "TEST"}
-        assert "project_id" not in result
+        assert result == {"project_id": "TEST"}
+        assert "project" not in result
 
     @pytest.mark.unit
-    def test_normalize_issue_tools_project_key_parameter(self):
-        """Test parameter normalization for issue tools project_key parameter."""
+    def test_normalize_create_issue_project_key_parameter(self):
+        """Test parameter normalization for create_issue's project_key alias."""
         kwargs = {"project_key": "TEST"}
 
         result = normalize_parameter_names("create_issue", kwargs)
 
-        assert result == {"project": "TEST"}
+        assert result == {"project_id": "TEST"}
         assert "project_key" not in result
 
     @pytest.mark.unit
@@ -351,9 +353,14 @@ class TestNormalizeParameterNames:
 
     @pytest.mark.unit
     def test_normalize_multiple_mappings(self):
-        """Test parameter normalization with multiple mappings."""
+        """Test parameter normalization with multiple mappings.
+
+        create_issue doesn't take an issue identifier, so issue_key is left
+        untouched here (that mapping only applies to issue_tools_methods like
+        get_issue, covered by test_normalize_issue_tools_issue_key_parameter).
+        """
         kwargs = {
-            "project_id": "TEST",
+            "project": "TEST",
             "issue_key": "TEST-123",
             "user_id": "user123",
             "custom_field_id": "field456",
@@ -362,8 +369,8 @@ class TestNormalizeParameterNames:
         result = normalize_parameter_names("create_issue", kwargs)
 
         expected = {
-            "project": "TEST",
-            "issue_id": "TEST-123",
+            "project_id": "TEST",
+            "issue_key": "TEST-123",
             "user": "user123",
             "field_id": "field456",
         }
@@ -466,8 +473,8 @@ class TestCreateBoundTool:
                 return {"project_id": project_id}
 
         class IssueClass:
-            def create_issue(self, project):
-                return {"project": project}
+            def create_issue(self, project_id):
+                return {"project_id": project_id}
 
         # Test project tool (project -> project_id)
         project_instance = ProjectClass()
@@ -475,11 +482,11 @@ class TestCreateBoundTool:
         result = project_tool(project="TEST")  # Should normalize to project_id
         assert result == {"project_id": "TEST"}
 
-        # Test issue tool (project_id -> project)
+        # Test create_issue (project alias -> project_id, its real parameter name)
         issue_instance = IssueClass()
         issue_tool = create_bound_tool(issue_instance, "create_issue")
-        result = issue_tool(project_id="TEST")  # Should normalize to project
-        assert result == {"project": "TEST"}
+        result = issue_tool(project="TEST")  # Should normalize to project_id
+        assert result == {"project_id": "TEST"}
 
 
 class TestIntegrationScenarios:
@@ -510,24 +517,24 @@ class TestIntegrationScenarios:
         """Test full workflow for an issue tool."""
 
         class IssueTools:
-            def create_issue(self, project, summary):
+            def create_issue(self, project_id, summary):
                 return {
-                    "project": project,
+                    "project_id": project_id,
                     "summary": summary,
-                    "id": f"{project}-1",
+                    "id": f"{project_id}-1",
                 }
 
         instance = IssueTools()
 
-        # Test with JSON args
+        # Test with JSON args, using the legacy "project" alias
         bound_tool = create_bound_tool(instance, "create_issue")
         result = bound_tool(
-            args='{"project_id": "TEST", "summary": "New issue"}'
+            args='{"project": "TEST", "summary": "New issue"}'
         )
 
-        # project_id should be normalized to project
+        # project should be normalized to project_id
         assert result == {
-            "project": "TEST",
+            "project_id": "TEST",
             "summary": "New issue",
             "id": "TEST-1",
         }

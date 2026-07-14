@@ -95,16 +95,16 @@ class BasicOperations:
 
     @sync_wrapper
     def create_issue(
-        self, project: str, summary: str, description: Optional[str] = None,
+        self, project_id: str, summary: str, description: Optional[str] = None,
         custom_fields: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Create a new issue in YouTrack.
 
-        FORMAT: create_issue(project="DEMO", summary="Bug in login", description="Users cannot log in", custom_fields={"Assignee": "admin", "Priority": "Critical"})
+        FORMAT: create_issue(project_id="DEMO", summary="Bug in login", description="Users cannot log in", custom_fields={"Assignee": "admin", "Priority": "Critical"})
 
         Args:
-            project: The project identifier (e.g., "DEMO", "PROJECT")
+            project_id: The project identifier (e.g., "DEMO", "PROJECT")
             summary: The issue title/summary
             description: Optional detailed description of the issue
             custom_fields: Optional dictionary of custom field names and values, sent in the same API call as the issue
@@ -115,36 +115,36 @@ class BasicOperations:
         """
         try:
             logger.debug(
-                f"Creating issue with: project={project}, summary={summary}, description={description}, custom_fields={custom_fields}"
+                f"Creating issue with: project_id={project_id}, summary={summary}, description={description}, custom_fields={custom_fields}"
             )
 
             # Validate required parameters
-            if not project:
+            if not project_id:
                 return format_json_response(
-                    {"error": "Project is required", "status": "error"}
+                    {"error": "Project ID is required", "status": "error"}
                 )
             if not summary:
                 return format_json_response(
                     {"error": "Summary is required", "status": "error"}
                 )
 
-            # Check if project is a project ID or short name
-            project_id = project
-            if project and not project.startswith("0-"):
+            # Check if project_id is a project ID or short name
+            resolved_project_id = project_id
+            if project_id and not project_id.startswith("0-"):
                 # Try to get the project ID from the short name (e.g., "DEMO")
                 try:
-                    logger.info(f"Looking up project ID for: {project}")
-                    project_obj = self.projects_api.get_project_by_name(project)
+                    logger.info(f"Looking up project ID for: {project_id}")
+                    project_obj = self.projects_api.get_project_by_name(project_id)
                     if project_obj:
                         logger.info(
                             f"Found project {project_obj.name} with ID {project_obj.id}"
                         )
-                        project_id = project_obj.id
+                        resolved_project_id = project_obj.id
                     else:
-                        logger.warning(f"Project not found: {project}")
+                        logger.warning(f"Project not found: {project_id}")
                         return json.dumps(
                             {
-                                "error": f"Project not found: {project}",
+                                "error": f"Project not found: {project_id}",
                                 "status": "error",
                             }
                         )
@@ -157,12 +157,12 @@ class BasicOperations:
                         }
                     )
 
-            logger.info(f"Creating issue in project {project_id}: {summary}")
+            logger.info(f"Creating issue in project {resolved_project_id}: {summary}")
 
             # Call the API client to create the issue
             try:
                 issue = self.issues_api.create_issue(
-                    project_id, summary, description, custom_fields=custom_fields
+                    resolved_project_id, summary, description, custom_fields=custom_fields
                 )
 
                 # Check if we got an issue with an ID
@@ -208,7 +208,7 @@ class BasicOperations:
                 )
 
         except Exception as e:
-            logger.exception(f"Error creating issue in project {project}")
+            logger.exception(f"Error creating issue in project {project_id}")
             return format_json_response({"error": str(e), "status": "error"})
 
     @sync_wrapper
@@ -293,9 +293,9 @@ class BasicOperations:
                 }
             },
             "create_issue": {
-                "description": "Create a new issue in YouTrack with automatic project validation. Accepts both project short names (DEMO) and project IDs (0-1). Custom fields are sent in the same API call as the issue, so projects with mandatory fields (no default value) can be created in one step. Example: create_issue(project='DEMO', summary='Bug in login', description='Users cannot log in', custom_fields={'Assignee': 'john.doe', 'Priority': 'Critical'})",
+                "description": "Create a new issue in YouTrack with automatic project validation. Accepts both project short names (DEMO) and project IDs (0-1). Custom fields are sent in the same API call as the issue, so projects with mandatory fields (no default value) can be created in one step. Example: create_issue(project_id='DEMO', summary='Bug in login', description='Users cannot log in', custom_fields={'Assignee': 'john.doe', 'Priority': 'Critical'})",
                 "parameter_descriptions": {
-                    "project": "Project identifier (short name like 'DEMO' or ID like '0-1')",
+                    "project_id": "Project identifier (short name like 'DEMO' or ID like '0-1')",
                     "summary": "Issue title/summary (required)",
                     "description": "Detailed description of the issue (optional)",
                     "custom_fields": "Optional dictionary of custom field names to values, applied atomically with issue creation (e.g., {'Assignee': 'john.doe', 'Priority': 'Critical', 'Fix versions': ['1.0', '1.1']})"

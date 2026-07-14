@@ -12,6 +12,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# `fields` query used when listing a project's custom fields with enough detail to
+# resolve allowed values directly from the response. Note: `bundle` is the field's
+# actual, correctly-scoped bundle (name + values) - unlike `fieldType.id` (e.g.
+# "enum[1]"/"state[1]"), which is a fixed type descriptor shared by every
+# single-value enum/state field instance-wide and must never be treated as a
+# bundle reference.
+CUSTOM_FIELD_DETAIL_QUERY = (
+    "field(id,name,fieldType($type,valueType,id)),"
+    "bundle(id,name,values(id,name,description,isResolved,color)),"
+    "canBeEmpty,autoAttached"
+)
+
 
 class Project(BaseModel):
     """Model for a YouTrack project."""
@@ -390,9 +402,13 @@ class ProjectsClient:
             project_id: The project ID
 
         Returns:
-            List of custom fields
+            List of custom field definitions, including each field's name,
+            type, and (for enum/state/version/build/owned/user fields) its
+            bundle name and allowed values.
         """
-        return self.client.get(f"admin/projects/{project_id}/customFields")
+        return self.client.get(
+            f"admin/projects/{project_id}/customFields?fields={CUSTOM_FIELD_DETAIL_QUERY}"
+        )
 
     def add_custom_field(
         self,
@@ -485,136 +501,50 @@ class ProjectsClient:
         """
         try:
             # Get field information directly to avoid recursion with get_custom_field_schema
-            fields_query = "field(id,name,fieldType($type,valueType,id)),canBeEmpty,autoAttached"
-            fields = self.client.get(f"admin/projects/{project_id}/customFields?fields={fields_query}")
-            
+            fields = self.client.get(
+                f"admin/projects/{project_id}/customFields?fields={CUSTOM_FIELD_DETAIL_QUERY}"
+            )
+
             field_info = None
             for field in fields:
                 if field.get("field", {}).get("name") == field_name:
                     field_info = field
                     break
-            
+
             if not field_info:
                 logger.warning(f"Field '{field_name}' not found in project {project_id}")
                 return []
-            
+
             # Extract field type information
             field_schema = field_info.get("field", {})
             field_type = field_schema.get("fieldType", {})
-            
+
             # More robust field type handling
             if not isinstance(field_type, dict):
                 logger.warning(f"Field type for '{field_name}' is not a dictionary: {type(field_type)} - {field_type}")
                 return []
-                
+
             value_type = field_type.get("valueType", "")  # enum, state, user, etc.
-            bundle_id = field_type.get("id")  # enum[1], state[1], etc.
-            
-            logger.info(f"Field '{field_name}' - valueType: {value_type}, bundleId: {bundle_id}")
-            
-            if not bundle_id:
-                logger.warning(f"No bundle ID found for field '{field_name}'")
-                return []
-            
-            # For enum fields, we need to resolve the correct bundle
-            if value_type == "enum":
-                # First, try to extract the actual bundle ID from bundle_id string (e.g., "enum[1]" -> "1")
-                actual_bundle_id = None
-                if "[" in bundle_id and "]" in bundle_id:
-                    # Extract index from "enum[1]" format
-                    bundle_index = bundle_id.split("[")[1].split("]")[0]
-                    
-                    # Get all enum bundles and find the one at this index
-                    try:
-                        all_enum_bundles = self.client.get('admin/customFieldSettings/bundles/enum?fields=id,name,values(id,name,description)')
-                        if bundle_index.isdigit():
-                            index = int(bundle_index)
-                            if 0 <= index < len(all_enum_bundles):
-                                target_bundle = all_enum_bundles[index]
-                                actual_bundle_id = target_bundle.get('id')
-                                logger.info(f"Resolved bundle index {index} to bundle ID {actual_bundle_id} ({target_bundle.get('name')})")
-                                
-                                # Return values from the correct bundle
-                                values = target_bundle.get('values', [])
-                                logger.info(f"Found {len(values)} values for field '{field_name}' in bundle '{target_bundle.get('name')}'")
-                                return [
-                                    {
-                                        "name": value.get("name", ""),
-                                        "description": value.get("description", ""),
-                                        "id": value.get("id"),
-                                        **{k: v for k, v in value.items() if k not in ["name", "description", "id"]}  # Include any additional fields like color
-                                    }
-                                    for value in values
-                                ]
-                    except Exception as e:
-                        logger.error(f"Error resolving enum bundle index: {str(e)}")
-                
-                # Fallback: try the bundle_id directly
-                if not actual_bundle_id:
-                    actual_bundle_id = bundle_id.replace("enum[", "").replace("]", "")
-                
-                try:
-                    bundle_data = self.client.get(f"admin/customFieldSettings/bundles/enum/{actual_bundle_id}?fields=id,name,values(id,name,description)")
-                    values = bundle_data.get("values", [])
-                    logger.info(f"Found {len(values)} values for enum field '{field_name}'")
-                    return [
-                        {
-                            "name": value.get("name", ""),
-                            "description": value.get("description", ""),
-                            "id": value.get("id"),
-                            **{k: v for k, v in value.items() if k not in ["name", "description", "id"]}  # Include any additional fields like color
-                        }
-                        for value in values
-                    ]
-                except Exception as e:
-                    logger.error(f"Error getting enum bundle {actual_bundle_id}: {str(e)}")
-                    # Return enhanced guidance instead of empty array
-                    return [
-                        {
-                            "name": "__ENUM_ACCESS_ERROR__",
-                            "description": f"Could not access enum values for field '{field_name}'. This may be due to permissions or configuration issues.",
-                            "id": "access-error",
-                            "type": "guidance",
-                            "bundle_id": actual_bundle_id,
-                            "troubleshooting": [
-                                "Check if you have admin permissions",
-                                "Verify the field is properly configured",
-                                "Try accessing through YouTrack UI: Administration → Custom Fields"
-                            ]
-                        }
-                    ]
-            
-            elif value_type == "state":
-                try:
-                    # Handle both indexed format (state[1]) and direct bundle ID (state-bundle-123)
-                    if "[" in bundle_id and "]" in bundle_id:
-                        # Index-based format: state[1] means the first state bundle (0-based index)
-                        all_bundles = self.client.get("admin/customFieldSettings/bundles/state?fields=id,name,values(id,name,description,isResolved,color)")
-                        
-                        bundle_index = int(bundle_id.split("[")[1].split("]")[0]) - 1  # Convert to 0-based index
-                        if 0 <= bundle_index < len(all_bundles):
-                            target_bundle = all_bundles[bundle_index]
-                            values = target_bundle.get("values", [])
-                            logger.info(f"Found {len(values)} state values for field '{field_name}' from bundle '{target_bundle.get('name')}'")
-                            return [
-                                {
-                                    "name": value.get("name", ""),
-                                    "description": value.get("description", ""),
-                                    "id": value.get("id"),
-                                    "resolved": value.get("isResolved", False),
-                                    "color": value.get("color", {})
-                                }
-                                for value in values
-                            ]
-                        else:
-                            logger.error(f"Bundle index {bundle_index} out of range for {len(all_bundles)} state bundles")
-                            return []
-                    else:
-                        # Direct bundle ID format: get specific bundle
-                        bundle_data = self.client.get(f"admin/customFieldSettings/bundles/state/{bundle_id}?fields=values(id,name,description,isResolved,color)")
-                    
-                    values = bundle_data.get("values", [])
-                    logger.info(f"Found {len(values)} state values for field '{field_name}' from bundle '{bundle_data.get('name', 'unknown')}'")
+
+            logger.info(f"Field '{field_name}' - valueType: {value_type}")
+
+            # Enum and state fields resolve their allowed values from the field's own
+            # `bundle` object, which YouTrack already scopes correctly to this exact
+            # project field. `fieldType.id` (e.g. "enum[1]"/"state[1]") is NOT a bundle
+            # reference - it's a fixed type descriptor shared by every single-value
+            # enum/state field in the whole instance, so treating it as an index into
+            # the global bundle list (the previous approach) returns whichever bundle
+            # happens to sit at that index, regardless of which field was requested.
+            if value_type in ("enum", "state"):
+                bundle = field_info.get("bundle")
+                if not bundle:
+                    logger.warning(f"No bundle found for field '{field_name}' in project {project_id}")
+                    return []
+
+                values = bundle.get("values", [])
+                logger.info(f"Found {len(values)} values for field '{field_name}' in bundle '{bundle.get('name')}'")
+
+                if value_type == "state":
                     return [
                         {
                             "name": value.get("name", ""),
@@ -625,9 +555,16 @@ class ProjectsClient:
                         }
                         for value in values
                     ]
-                except Exception as e:
-                    logger.error(f"Error getting state bundle {bundle_id}: {str(e)}")
-                    return []
+
+                return [
+                    {
+                        "name": value.get("name", ""),
+                        "description": value.get("description", ""),
+                        "id": value.get("id"),
+                        **{k: v for k, v in value.items() if k not in ["name", "description", "id"]}  # Include any additional fields like color
+                    }
+                    for value in values
+                ]
             
             elif value_type == "user":
                 try:

@@ -131,7 +131,7 @@ class IssueTools:
     
     def create_issue(
         self,
-        project: str,
+        project_id: str,
         summary: str,
         description: Optional[str] = None,
         custom_fields: Optional[Dict[str, Any]] = None,
@@ -143,11 +143,11 @@ class IssueTools:
         so pass those fields here instead of updating the issue afterwards.
         Use get_custom_fields / get_available_custom_field_values to discover names and allowed values.
 
-        Example: create_issue(project="DEMO", summary="Bug in login",
+        Example: create_issue(project_id="DEMO", summary="Bug in login",
                               description="Users cannot log in",
                               custom_fields={"Priority": "Critical", "Type": "Bug", "Assignee": "john.doe"})
         """
-        return self.basic_operations.create_issue(project, summary, description, custom_fields)
+        return self.basic_operations.create_issue(project_id, summary, description, custom_fields)
     
     def update_issue(self, issue_id: str, summary: Optional[str] = None, description: Optional[str] = None, uses_markdown: Optional[bool] = None, additional_fields: Optional[Dict[str, Any]] = None) -> str:
         """Update basic issue fields."""
