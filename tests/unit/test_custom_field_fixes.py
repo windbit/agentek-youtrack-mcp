@@ -215,124 +215,147 @@ class TestCustomFieldUpdateFixes:
         mock_client.get.assert_called_with(f"admin/projects/DEMO/customFields?fields={expected_query}")
 
     def test_get_custom_field_allowed_values_enum_bundle(self, projects_client, mock_client):
-        """Test getting allowed values for enum bundle."""
-        # Mock the field schema response
-        mock_client.get.side_effect = [
-            # First call - get field schema
-            [
-                {
-                    "field": {
-                        "id": "priority-field-id",
-                        "name": "Priority",
-                        "fieldType": {
-                            "$type": "EnumBundle",
-                            "valueType": "enum",
-                            "id": "enum-bundle-123"
-                        }
-                    }
-                }
-            ],
-            # Second call - get bundle values
+        """Test getting allowed values for enum bundle.
+
+        The field's own `bundle` (returned inline by the customFields endpoint) is
+        the source of truth - `fieldType.id` (e.g. "enum[1]") is a fixed type
+        descriptor shared by every single-value enum field instance-wide, not a
+        bundle reference, and must never be used to look up bundle data.
+        """
+        mock_client.get.return_value = [
             {
-                "values": [
-                    {
-                        "id": "value-1",
-                        "name": "High",
-                        "description": "High priority",
-                        "color": {"background": "#ff0000"}
-                    },
-                    {
-                        "id": "value-2", 
-                        "name": "Low",
-                        "description": "Low priority",
-                        "color": {"background": "#00ff00"}
+                "field": {
+                    "id": "priority-field-id",
+                    "name": "Priority",
+                    "fieldType": {
+                        "$type": "EnumBundle",
+                        "valueType": "enum",
+                        "id": "enum[1]"
                     }
-                ]
+                },
+                "bundle": {
+                    "id": "enum-bundle-123",
+                    "name": "Priorities",
+                    "values": [
+                        {
+                            "id": "value-1",
+                            "name": "High",
+                            "description": "High priority",
+                            "color": {"background": "#ff0000"}
+                        },
+                        {
+                            "id": "value-2",
+                            "name": "Low",
+                            "description": "Low priority",
+                            "color": {"background": "#00ff00"}
+                        }
+                    ]
+                }
             }
         ]
-        
+
         values = projects_client.get_custom_field_allowed_values("DEMO", "Priority")
-        
+
         expected_values = [
             {
                 "name": "High",
-                "description": "High priority", 
+                "description": "High priority",
                 "id": "value-1",
                 "color": {"background": "#ff0000"}
             },
             {
                 "name": "Low",
                 "description": "Low priority",
-                "id": "value-2", 
+                "id": "value-2",
                 "color": {"background": "#00ff00"}
             }
         ]
-        
+
         assert values == expected_values
-        
-        # Verify the bundle API call (updated to match current implementation)
-        assert mock_client.get.call_count == 2
-        mock_client.get.assert_any_call("admin/customFieldSettings/bundles/enum/enum-bundle-123?fields=id,name,values(id,name,description)")
+
+        # A single call fetches field + bundle together - no separate bundle lookup.
+        assert mock_client.get.call_count == 1
+
+    def test_get_custom_field_allowed_values_enum_bundle_does_not_mix_up_other_fields(self, projects_client, mock_client):
+        """Two enum[1] fields (e.g. Priority and Type) must not resolve to each other's bundle."""
+        mock_client.get.return_value = [
+            {
+                "field": {"id": "priority-field-id", "name": "Priority",
+                          "fieldType": {"$type": "EnumBundle", "valueType": "enum", "id": "enum[1]"}},
+                "bundle": {"id": "147-0", "name": "Priorities",
+                           "values": [{"id": "v-critical", "name": "Critical"}]}
+            },
+            {
+                "field": {"id": "type-field-id", "name": "Type",
+                          "fieldType": {"$type": "EnumBundle", "valueType": "enum", "id": "enum[1]"}},
+                "bundle": {"id": "147-1", "name": "Types",
+                           "values": [{"id": "v-bug", "name": "Bug"}]}
+            }
+        ]
+
+        priority_values = projects_client.get_custom_field_allowed_values("DEMO", "Priority")
+        type_values = projects_client.get_custom_field_allowed_values("DEMO", "Type")
+
+        assert [v["name"] for v in priority_values] == ["Critical"]
+        assert [v["name"] for v in type_values] == ["Bug"]
 
     def test_get_custom_field_allowed_values_state_bundle(self, projects_client, mock_client):
         """Test getting allowed values for state bundle."""
-        # Mock the field schema response  
-        mock_client.get.side_effect = [
-            # First call - get field schema
-            [
-                {
-                    "field": {
-                        "id": "state-field-id",
-                        "name": "State", 
-                        "fieldType": {
-                            "$type": "StateMachineBundle",
-                            "valueType": "state",
-                            "id": "state-bundle-456"
-                        }
-                    }
-                }
-            ],
-            # Second call - get bundle values
+        mock_client.get.return_value = [
             {
-                "values": [
-                    {
-                        "id": "state-1",
-                        "name": "Open",
-                        "description": "Issue is open",
-                        "isResolved": False,
-                        "color": {"background": "#0000ff"}
-                    },
-                    {
-                        "id": "state-2",
-                        "name": "Closed", 
-                        "description": "Issue is closed",
-                        "isResolved": True,
-                        "color": {"background": "#808080"}
+                "field": {
+                    "id": "state-field-id",
+                    "name": "State",
+                    "fieldType": {
+                        "$type": "StateMachineBundle",
+                        "valueType": "state",
+                        "id": "state[1]"
                     }
-                ]
+                },
+                "bundle": {
+                    "id": "state-bundle-456",
+                    "name": "States",
+                    "values": [
+                        {
+                            "id": "state-1",
+                            "name": "Open",
+                            "description": "Issue is open",
+                            "isResolved": False,
+                            "color": {"background": "#0000ff"}
+                        },
+                        {
+                            "id": "state-2",
+                            "name": "Closed",
+                            "description": "Issue is closed",
+                            "isResolved": True,
+                            "color": {"background": "#808080"}
+                        }
+                    ]
+                }
             }
         ]
-        
+
         values = projects_client.get_custom_field_allowed_values("DEMO", "State")
-        
+
         expected_values = [
             {
                 "name": "Open",
                 "description": "Issue is open",
-                "id": "state-1", 
+                "id": "state-1",
                 "resolved": False,
                 "color": {"background": "#0000ff"}
             },
             {
                 "name": "Closed",
-                "description": "Issue is closed", 
+                "description": "Issue is closed",
                 "id": "state-2",
                 "resolved": True,
                 "color": {"background": "#808080"}
             }
         ]
-        
+
         assert values == expected_values
+        assert mock_client.get.call_count == 1
 
     def test_get_custom_field_allowed_values_user_bundle(self, projects_client, mock_client):
         """Test getting allowed values for user bundle."""

@@ -199,17 +199,17 @@ def normalize_parameter_names(
     normalized = kwargs.copy()
 
     # Tool-specific parameter mappings
-    # For ProjectTools methods, we want to keep project_id as project_id
+    # For ProjectTools methods (and create_issue, which also takes a project
+    # identifier), we want to keep project_id as project_id
     project_tools_methods = [
         "get_project",
         "get_project_issues",
         "get_custom_fields",
         "update_project",
+        "create_issue",
     ]
 
     issue_tools_methods = [
-        "create_issue",
-        "issue_create_issue",
         "get_issue",
         "add_comment",
         "get_issue_raw",
@@ -217,19 +217,14 @@ def normalize_parameter_names(
 
     # Apply mappings based on the function being called
     if func_name in project_tools_methods:
-        # For project tools, ensure project is named project_id
+        # For project tools, ensure project/project_key are named project_id
         if "project" in normalized and "project_id" not in normalized:
             normalized["project_id"] = normalized.pop("project")
 
+        if "project_key" in normalized and "project_id" not in normalized:
+            normalized["project_id"] = normalized.pop("project_key")
+
     elif func_name in issue_tools_methods:
-        # For issue tools, ensure project_id is mapped to project
-        if "project_id" in normalized and "project" not in normalized:
-            normalized["project"] = normalized.pop("project_id")
-
-        # Also handle project_key for issue tools
-        if "project_key" in normalized and "project" not in normalized:
-            normalized["project"] = normalized.pop("project_key")
-
         # Handle issue_key for issue tools
         if "issue_key" in normalized and "issue_id" not in normalized:
             normalized["issue_id"] = normalized.pop("issue_key")

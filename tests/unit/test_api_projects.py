@@ -515,22 +515,27 @@ class TestProjectsClientCustomFields:
                 }
             },
             {
-                "id": "field2", 
+                "id": "field2",
                 "name": "Type",
                 "projectCustomField": {
                     "field": {"name": "Type"}
                 }
             }
         ]
-        
+
         projects_client = ProjectsClient(mock_client)
         custom_fields = projects_client.get_custom_fields("DEMO")
-        
+
         assert len(custom_fields) == 2
         assert custom_fields[0]["name"] == "Priority"
         assert custom_fields[1]["name"] == "Type"
-        
-        mock_client.get.assert_called_once_with("admin/projects/DEMO/customFields")
+
+        mock_client.get.assert_called_once_with(
+            "admin/projects/DEMO/customFields?fields="
+            "field(id,name,fieldType($type,valueType,id)),"
+            "bundle(id,name,values(id,name,description,isResolved,color)),"
+            "canBeEmpty,autoAttached"
+        )
 
     def test_get_custom_fields_empty(self):
         """Test getting custom fields when none exist."""
@@ -657,8 +662,13 @@ class TestProjectsCustomFields(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_get_custom_field_allowed_values_enum_field(self):
-        """Test getting allowed values for enum field."""
-        # Mock field schema response
+        """Test getting allowed values for enum field.
+
+        The field's own `bundle` (returned inline by the customFields endpoint)
+        is the source of truth - `fieldType.id` (e.g. "enum[1]") is a fixed type
+        descriptor, not a bundle reference, and must not be used to look up
+        bundle data.
+        """
         mock_fields = [
             {
                 "field": {
@@ -667,35 +677,58 @@ class TestProjectsCustomFields(unittest.TestCase):
                     "fieldType": {
                         "$type": "EnumBundle",
                         "valueType": "enum",
-                        "id": "bundle-123"
+                        "id": "enum[1]"
                     }
+                },
+                "bundle": {
+                    "id": "bundle-123",
+                    "name": "Priority Bundle",
+                    "values": [
+                        {"name": "High", "description": "High priority", "id": "val-1", "color": {"bg": "#ff0000"}},
+                        {"name": "Medium", "description": "Medium priority", "id": "val-2", "color": {"bg": "#ffff00"}},
+                        {"name": "Low", "description": "Low priority", "id": "val-3", "color": {"bg": "#00ff00"}}
+                    ]
                 }
             }
         ]
-        
-        mock_bundle_data = {
-            "id": "bundle-123",
-            "name": "Priority Bundle",
-            "values": [
-                {"name": "High", "description": "High priority", "id": "val-1", "color": {"bg": "#ff0000"}},
-                {"name": "Medium", "description": "Medium priority", "id": "val-2", "color": {"bg": "#ffff00"}},
-                {"name": "Low", "description": "Low priority", "id": "val-3", "color": {"bg": "#00ff00"}}
-            ]
-        }
-        
-        # Our method makes two API calls: first for field schema, then for bundle data
-        self.mock_client.get.side_effect = [mock_fields, mock_bundle_data]
+
+        # A single call fetches field + bundle together - no separate bundle lookup.
+        self.mock_client.get.return_value = mock_fields
 
         result = self.projects_client.get_custom_field_allowed_values("0-0", "Priority")
 
+        self.assertEqual(self.mock_client.get.call_count, 1)
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0]["name"], "High")
         self.assertEqual(result[0]["description"], "High priority")
         self.assertIn("color", result[0])
 
+    def test_get_custom_field_allowed_values_enum_field_does_not_mix_up_other_fields(self):
+        """Two enum[1] fields (e.g. Priority and Type) must not resolve to each other's bundle."""
+        mock_fields = [
+            {
+                "field": {"id": "priority-field-id", "name": "Priority",
+                          "fieldType": {"$type": "EnumBundle", "valueType": "enum", "id": "enum[1]"}},
+                "bundle": {"id": "147-0", "name": "Priorities",
+                           "values": [{"name": "Critical", "id": "v-critical"}]}
+            },
+            {
+                "field": {"id": "type-field-id", "name": "Type",
+                          "fieldType": {"$type": "EnumBundle", "valueType": "enum", "id": "enum[1]"}},
+                "bundle": {"id": "147-1", "name": "Types",
+                           "values": [{"name": "Bug", "id": "v-bug"}]}
+            }
+        ]
+        self.mock_client.get.return_value = mock_fields
+
+        priority_values = self.projects_client.get_custom_field_allowed_values("0-0", "Priority")
+        type_values = self.projects_client.get_custom_field_allowed_values("0-0", "Type")
+
+        self.assertEqual([v["name"] for v in priority_values], ["Critical"])
+        self.assertEqual([v["name"] for v in type_values], ["Bug"])
+
     def test_get_custom_field_allowed_values_state_field(self):
         """Test getting allowed values for state field."""
-        # Mock field schema response
         mock_fields = [
             {
                 "field": {
@@ -704,25 +737,26 @@ class TestProjectsCustomFields(unittest.TestCase):
                     "fieldType": {
                         "$type": "StateBundle",
                         "valueType": "state",
-                        "id": "bundle-456"
+                        "id": "state[1]"
                     }
+                },
+                "bundle": {
+                    "id": "bundle-456",
+                    "name": "States",
+                    "values": [
+                        {"name": "Open", "description": "Open state", "id": "state-1", "isResolved": False},
+                        {"name": "In Progress", "description": "In progress", "id": "state-2", "isResolved": False},
+                        {"name": "Closed", "description": "Closed state", "id": "state-3", "isResolved": True}
+                    ]
                 }
             }
         ]
-        
-        mock_bundle_data = {
-            "values": [
-                {"name": "Open", "description": "Open state", "id": "state-1", "isResolved": False},
-                {"name": "In Progress", "description": "In progress", "id": "state-2", "isResolved": False},
-                {"name": "Closed", "description": "Closed state", "id": "state-3", "isResolved": True}
-            ]
-        }
-        
-        # Our method makes two API calls: first for field schema, then for bundle data
-        self.mock_client.get.side_effect = [mock_fields, mock_bundle_data]
+
+        self.mock_client.get.return_value = mock_fields
 
         result = self.projects_client.get_custom_field_allowed_values("0-0", "State")
 
+        self.assertEqual(self.mock_client.get.call_count, 1)
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0]["name"], "Open")
         self.assertFalse(result[0]["resolved"])

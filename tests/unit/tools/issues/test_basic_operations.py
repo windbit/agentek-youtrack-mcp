@@ -263,7 +263,7 @@ class TestBasicOperations:
         result_data = json.loads(result)
         
         # Assert
-        assert result_data["error"] == "Project is required"
+        assert result_data["error"] == "Project ID is required"
         assert result_data["status"] == "error"
 
     def test_create_issue_missing_summary(self):
@@ -528,7 +528,7 @@ class TestBasicOperations:
         assert "limit" in search_def["parameter_descriptions"]
         
         create_def = definitions["create_issue"]
-        assert "project" in create_def["parameter_descriptions"]
+        assert "project_id" in create_def["parameter_descriptions"]
         assert "summary" in create_def["parameter_descriptions"]
         assert "description" in create_def["parameter_descriptions"]
         
