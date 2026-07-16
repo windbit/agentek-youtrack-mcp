@@ -201,6 +201,31 @@ class IssueTools:
         """Delete an attachment from an issue."""
         return self.attachments.delete_attachment(issue_id, attachment_id)
 
+    def upload_attachment(
+        self,
+        issue_id: str,
+        filename: str,
+        content_base64: str,
+        mime_type: str = "application/octet-stream",
+    ) -> str:
+        """Upload a base64-encoded file attachment to an issue."""
+        return self.attachments.upload_attachment(
+            issue_id, filename, content_base64, mime_type
+        )
+
+    def upload_comment_attachment(
+        self,
+        issue_id: str,
+        comment_id: str,
+        filename: str,
+        content_base64: str,
+        mime_type: str = "application/octet-stream",
+    ) -> str:
+        """Upload a base64-encoded file attachment to an issue comment."""
+        return self.attachments.upload_comment_attachment(
+            issue_id, comment_id, filename, content_base64, mime_type
+        )
+
     # === Utility Functions ===
     
     def close(self) -> None:

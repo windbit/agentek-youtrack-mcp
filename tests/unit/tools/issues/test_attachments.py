@@ -360,13 +360,141 @@ class TestAttachments:
         assert result_data["filename"] == "empty.txt"
         assert result_data["status"] == "success"
 
+    def test_upload_attachment_success(self):
+        """Test successful attachment upload."""
+        # Arrange
+        issue_id = "DEMO-123"
+        filename = "screenshot.png"
+        original_content = b"PNG binary data"
+        content_base64 = base64.b64encode(original_content).decode("utf-8")
+
+        self.mock_issues_api.upload_attachment.return_value = {
+            "id": "1-456",
+            "name": filename,
+            "mimeType": "image/png",
+            "size": len(original_content),
+        }
+
+        # Act
+        result = self.attachments.upload_attachment(
+            issue_id, filename, content_base64, "image/png"
+        )
+        result_data = json.loads(result)
+
+        # Assert
+        assert result_data["status"] == "success"
+        assert result_data["attachment"]["id"] == "1-456"
+        assert result_data["attachment"]["name"] == filename
+        self.mock_issues_api.upload_attachment.assert_called_once_with(
+            issue_id, filename, original_content, "image/png"
+        )
+
+    def test_upload_attachment_default_mime_type(self):
+        """Test attachment upload defaults to application/octet-stream."""
+        # Arrange
+        issue_id = "DEMO-123"
+        filename = "notes.txt"
+        content_base64 = base64.b64encode(b"notes").decode("utf-8")
+        self.mock_issues_api.upload_attachment.return_value = {"id": "1-1"}
+
+        # Act
+        self.attachments.upload_attachment(issue_id, filename, content_base64)
+
+        # Assert
+        args, _ = self.mock_issues_api.upload_attachment.call_args
+        assert args[3] == "application/octet-stream"
+
+    def test_upload_attachment_invalid_base64(self):
+        """Test attachment upload with invalid base64 content returns an error."""
+        # Arrange
+        issue_id = "DEMO-123"
+
+        # Act
+        result = self.attachments.upload_attachment(
+            issue_id, "file.txt", "not-valid-base64!!!"
+        )
+        result_data = json.loads(result)
+
+        # Assert
+        assert result_data["status"] == "error"
+        assert "error" in result_data
+
+    def test_upload_attachment_api_error(self):
+        """Test upload_attachment when the API call fails."""
+        # Arrange
+        issue_id = "DEMO-123"
+        content_base64 = base64.b64encode(b"data").decode("utf-8")
+        self.mock_issues_api.upload_attachment.side_effect = Exception("Upload failed")
+
+        # Act
+        result = self.attachments.upload_attachment(issue_id, "file.txt", content_base64)
+        result_data = json.loads(result)
+
+        # Assert
+        assert result_data["status"] == "error"
+        assert "Upload failed" in result_data["error"]
+
+    def test_upload_comment_attachment_success(self):
+        """Test successful comment attachment upload."""
+        # Arrange
+        issue_id = "DEMO-123"
+        comment_id = "4-56"
+        filename = "log.txt"
+        original_content = b"log contents"
+        content_base64 = base64.b64encode(original_content).decode("utf-8")
+
+        self.mock_issues_api.upload_comment_attachment.return_value = {
+            "id": "1-999",
+            "name": filename,
+            "mimeType": "text/plain",
+        }
+
+        # Act
+        result = self.attachments.upload_comment_attachment(
+            issue_id, comment_id, filename, content_base64, "text/plain"
+        )
+        result_data = json.loads(result)
+
+        # Assert
+        assert result_data["status"] == "success"
+        assert result_data["attachment"]["id"] == "1-999"
+        self.mock_issues_api.upload_comment_attachment.assert_called_once_with(
+            issue_id, comment_id, filename, original_content, "text/plain"
+        )
+
+    def test_upload_comment_attachment_api_error(self):
+        """Test upload_comment_attachment when the API call fails."""
+        # Arrange
+        issue_id = "DEMO-123"
+        comment_id = "4-56"
+        content_base64 = base64.b64encode(b"data").decode("utf-8")
+        self.mock_issues_api.upload_comment_attachment.side_effect = Exception(
+            "Comment not found"
+        )
+
+        # Act
+        result = self.attachments.upload_comment_attachment(
+            issue_id, comment_id, "file.txt", content_base64
+        )
+        result_data = json.loads(result)
+
+        # Assert
+        assert result_data["status"] == "error"
+        assert "Comment not found" in result_data["error"]
+
     def test_get_tool_definitions(self):
         """Test tool definitions for attachment functions."""
         # Act
         definitions = self.attachments.get_tool_definitions()
-        
+
         # Assert
-        expected_functions = ["get_issue_raw", "get_attachment_content"]
+        expected_functions = [
+            "get_issue_raw",
+            "get_attachment_content",
+            "upload_attachment",
+            "upload_comment_attachment",
+            "delete_attachment",
+        ]
         
         for func_name in expected_functions:
             assert func_name in definitions

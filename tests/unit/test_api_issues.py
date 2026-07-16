@@ -14,7 +14,7 @@ pytestmark = pytest.mark.unit
 from typing import List, Dict, Any
 
 from youtrack_mcp.api.issues import IssuesClient, Issue
-from youtrack_mcp.api.client import YouTrackClient
+from youtrack_mcp.api.client import YouTrackClient, YouTrackAPIError
 
 
 class TestIssueModel:
@@ -877,6 +877,76 @@ class TestIssuesCustomFieldValidation(unittest.TestCase):
 
         result = self.issues_client._validate_custom_field_value("0-0", "Field", "value")
         self.assertTrue(result)
+
+
+class TestIssuesClientAttachmentUpload:
+    """Test attachment upload methods."""
+
+    def test_upload_attachment_calls_post_multipart(self):
+        """Test that upload_attachment posts to the correct endpoint with the right file tuple."""
+        mock_client = Mock(spec=YouTrackClient)
+        # YouTrack's attachment upload endpoint returns a JSON array
+        mock_client.post_multipart.return_value = [
+            {
+                "id": "1-456",
+                "name": "screenshot.png",
+                "mimeType": "image/png",
+                "size": 12,
+            }
+        ]
+
+        issues_client = IssuesClient(mock_client)
+        result = issues_client.upload_attachment(
+            "DEMO-123", "screenshot.png", b"binarydata", "image/png"
+        )
+
+        mock_client.post_multipart.assert_called_once_with(
+            "issues/DEMO-123/attachments?fields=id,name,mimeType,size",
+            files={"file": ("screenshot.png", b"binarydata", "image/png")},
+        )
+        assert result["id"] == "1-456"
+
+    def test_upload_attachment_default_mime_type(self):
+        """Test that upload_attachment defaults to application/octet-stream."""
+        mock_client = Mock(spec=YouTrackClient)
+        mock_client.post_multipart.return_value = [{"id": "1-789"}]
+
+        issues_client = IssuesClient(mock_client)
+        issues_client.upload_attachment("DEMO-123", "notes.txt", b"data")
+
+        _, kwargs = mock_client.post_multipart.call_args
+        assert kwargs["files"]["file"][2] == "application/octet-stream"
+
+    def test_upload_attachment_empty_list_raises(self):
+        """Test that an empty array response raises instead of silently returning nothing useful."""
+        mock_client = Mock(spec=YouTrackClient)
+        mock_client.post_multipart.return_value = []
+
+        issues_client = IssuesClient(mock_client)
+        with pytest.raises(YouTrackAPIError):
+            issues_client.upload_attachment("DEMO-123", "notes.txt", b"data")
+
+    def test_upload_comment_attachment_calls_post_multipart(self):
+        """Test that upload_comment_attachment posts to the comment-scoped endpoint."""
+        mock_client = Mock(spec=YouTrackClient)
+        mock_client.post_multipart.return_value = [
+            {
+                "id": "1-999",
+                "name": "log.txt",
+                "mimeType": "text/plain",
+            }
+        ]
+
+        issues_client = IssuesClient(mock_client)
+        result = issues_client.upload_comment_attachment(
+            "DEMO-123", "4-56", "log.txt", b"logdata", "text/plain"
+        )
+
+        mock_client.post_multipart.assert_called_once_with(
+            "issues/DEMO-123/comments/4-56/attachments?fields=id,name,mimeType,size",
+            files={"file": ("log.txt", b"logdata", "text/plain")},
+        )
+        assert result["id"] == "1-999"
 
 
 if __name__ == "__main__":

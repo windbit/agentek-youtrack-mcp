@@ -504,3 +504,66 @@ class TestExceptionClasses:
         assert isinstance(error, YouTrackAPIError)
         assert str(error) == "Internal server error"
         assert error.status_code == 500
+
+
+class TestPostMultipart:
+    """Test cases for YouTrackClient.post_multipart (file upload requests)."""
+
+    @pytest.fixture
+    def mock_session(self):
+        with patch(
+            "youtrack_mcp.api.client.requests.Session"
+        ) as mock_session_class:
+            session = Mock()
+            mock_session_class.return_value = session
+            yield session
+
+    @pytest.fixture
+    def client(self, mock_session):
+        with patch("youtrack_mcp.api.client.config") as mock_config:
+            mock_config.get_base_url.return_value = (
+                "https://test.youtrack.cloud"
+            )
+            mock_config.get_api_token.return_value = "test-token"
+            mock_config.VERIFY_SSL = True
+            mock_config.is_cloud_instance.return_value = True
+            return YouTrackClient()
+
+    @pytest.mark.unit
+    def test_post_multipart_overrides_content_type_to_none(
+        self, client, mock_session
+    ):
+        """Regression test: Content-Type must be explicitly None, not omitted, or requests refills it from session.headers and breaks the multipart boundary."""
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = [{"id": "1-1"}]
+        mock_session.request.return_value = response
+
+        client.post_multipart(
+            "issues/DEMO-1/attachments",
+            files={"file": ("a.txt", b"data", "text/plain")},
+        )
+
+        _, kwargs = mock_session.request.call_args
+        assert kwargs["headers"]["Content-Type"] is None
+        assert kwargs["files"] == {
+            "file": ("a.txt", b"data", "text/plain")
+        }
+
+    @pytest.mark.unit
+    def test_post_multipart_merges_extra_headers(self, client, mock_session):
+        """Test that explicit extra headers are passed through alongside the Content-Type override."""
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = [{"id": "1-2"}]
+        mock_session.request.return_value = response
+
+        client.post_multipart(
+            "issues/DEMO-1/attachments",
+            files={"file": ("a.txt", b"data", "text/plain")},
+            headers={"X-Custom": "yes"},
+        )
+
+        _, kwargs = mock_session.request.call_args
+        assert kwargs["headers"]["Content-Type"] is None
+        assert kwargs["headers"]["X-Custom"] == "yes"

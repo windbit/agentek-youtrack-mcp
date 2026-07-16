@@ -312,7 +312,7 @@ class BasicOperations:
                 }
             },
             "add_comment": {
-                "description": "Add a text comment to an issue. Comments are visible to all users with access to the issue. Example: add_comment(issue_id='DEMO-123', text='This has been fixed and tested')",
+                "description": "Add a text comment to an issue. Comments are visible to all users with access to the issue. Returns the created comment's 'id' (e.g. '7-4') - pass that as comment_id to upload_comment_attachment if you also need to attach a file to this comment. Example: add_comment(issue_id='DEMO-123', text='This has been fixed and tested')",
                 "parameter_descriptions": {
                     "issue_id": "Issue identifier like 'DEMO-123' or 'PROJECT-456'",
                     "text": "Comment text content"
