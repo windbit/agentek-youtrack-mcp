@@ -109,6 +109,76 @@ class Attachments:
             return format_json_response({"error": str(e), "status": "error"})
 
     @sync_wrapper
+    def upload_attachment(
+        self,
+        issue_id: str,
+        filename: str,
+        content_base64: str,
+        mime_type: str = "application/octet-stream",
+    ) -> str:
+        """
+        Upload an attachment to an issue from base64-encoded content.
+
+        Args:
+            issue_id: The issue identifier (e.g., "DEMO-123", "PROJECT-456")
+            filename: Name to give the uploaded file (e.g., "screenshot.png")
+            content_base64: The file content encoded as a base64 string
+            mime_type: MIME type of the file (default: application/octet-stream)
+
+        Returns:
+            JSON string with the created attachment metadata
+        """
+        try:
+            file_bytes = base64.b64decode(content_base64)
+            attachment = self.issues_api.upload_attachment(
+                issue_id, filename, file_bytes, mime_type
+            )
+            return format_json_response(
+                {"status": "success", "attachment": attachment}
+            )
+        except Exception as e:
+            logger.exception(
+                f"Error uploading attachment to issue {issue_id}"
+            )
+            return format_json_response({"error": str(e), "status": "error"})
+
+    @sync_wrapper
+    def upload_comment_attachment(
+        self,
+        issue_id: str,
+        comment_id: str,
+        filename: str,
+        content_base64: str,
+        mime_type: str = "application/octet-stream",
+    ) -> str:
+        """
+        Upload an attachment to an existing comment on an issue.
+
+        Args:
+            issue_id: The issue identifier (e.g., "DEMO-123", "PROJECT-456")
+            comment_id: The comment ID to attach the file to
+            filename: Name to give the uploaded file (e.g., "log.txt")
+            content_base64: The file content encoded as a base64 string
+            mime_type: MIME type of the file (default: application/octet-stream)
+
+        Returns:
+            JSON string with the created attachment metadata
+        """
+        try:
+            file_bytes = base64.b64decode(content_base64)
+            attachment = self.issues_api.upload_comment_attachment(
+                issue_id, comment_id, filename, file_bytes, mime_type
+            )
+            return format_json_response(
+                {"status": "success", "attachment": attachment}
+            )
+        except Exception as e:
+            logger.exception(
+                f"Error uploading attachment to comment {comment_id} on issue {issue_id}"
+            )
+            return format_json_response({"error": str(e), "status": "error"})
+
+    @sync_wrapper
     def delete_attachment(self, issue_id: str, attachment_id: str) -> str:
         """
         Delete an attachment from an issue.
@@ -157,5 +227,24 @@ class Attachments:
                     "issue_id": "Issue identifier containing the attachment like 'DEMO-123'",
                     "attachment_id": "Attachment identifier to delete from issue attachments list like '1-456' or '2-789'"
                 }
+            },
+            "upload_attachment": {
+                "description": "Upload a file attachment to an issue. Expects base64-encoded file content. Example: upload_attachment(issue_id='DEMO-123', filename='screenshot.png', content_base64='iVBORw0KG...', mime_type='image/png')",
+                "parameter_descriptions": {
+                    "issue_id": "Issue identifier to attach the file to like 'DEMO-123'",
+                    "filename": "Name to give the uploaded file, e.g. 'screenshot.png'",
+                    "content_base64": "File content encoded as a base64 string",
+                    "mime_type": "MIME type of the file, e.g. 'image/png' (default: application/octet-stream)"
+                }
+            },
+            "upload_comment_attachment": {
+                "description": "Upload a file attachment to an existing comment on an issue. Expects base64-encoded file content. Requires a comment_id: get one from add_comment's response (its 'id' field) when attaching to a comment you're creating now, or from get_issue_raw's comments list when attaching to an existing comment. Example: upload_comment_attachment(issue_id='DEMO-123', comment_id='4-56', filename='log.txt', content_base64='dGVzdA==', mime_type='text/plain')",
+                "parameter_descriptions": {
+                    "issue_id": "Issue identifier containing the comment like 'DEMO-123'",
+                    "comment_id": "Comment identifier to attach the file to, e.g. '4-56'. Obtain it from add_comment's response or get_issue_raw's comments list",
+                    "filename": "Name to give the uploaded file, e.g. 'log.txt'",
+                    "content_base64": "File content encoded as a base64 string",
+                    "mime_type": "MIME type of the file, e.g. 'text/plain' (default: application/octet-stream)"
+                }
             }
-        } 
+        }

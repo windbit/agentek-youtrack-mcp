@@ -397,10 +397,8 @@ class YouTrackClient:
             Parsed JSON response
         """
         url = self._get_api_url(endpoint)
-        request_headers = dict(self.session.headers)
-        # Remove JSON content-type so requests can set multipart boundary
-        if "Content-Type" in request_headers:
-            request_headers.pop("Content-Type", None)
+        # Must be explicitly None, not omitted: requests merges omitted keys back in from session.headers.
+        request_headers: Dict[str, Optional[str]] = {"Content-Type": None}
         if headers:
             request_headers.update(headers)
 

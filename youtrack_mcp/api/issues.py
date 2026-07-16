@@ -2507,6 +2507,75 @@ class IssuesClient:
         # Return the binary content
         return response.content
 
+    def upload_attachment(
+        self,
+        issue_id: str,
+        filename: str,
+        file_bytes: bytes,
+        mime_type: str = "application/octet-stream",
+    ) -> Dict[str, Any]:
+        """
+        Upload an attachment to an issue.
+
+        Args:
+            issue_id: The issue ID or readable ID
+            filename: Name of the file to attach
+            file_bytes: Raw file content
+            mime_type: MIME type of the file
+
+        Returns:
+            The created attachment data
+
+        Raises:
+            YouTrackAPIError: If the API returns no attachment data
+        """
+        endpoint = f"issues/{issue_id}/attachments?fields=id,name,mimeType,size"
+        files = {"file": (filename, file_bytes, mime_type)}
+        response = self.client.post_multipart(endpoint, files=files)
+        return self._first_attachment(response)
+
+    def upload_comment_attachment(
+        self,
+        issue_id: str,
+        comment_id: str,
+        filename: str,
+        file_bytes: bytes,
+        mime_type: str = "application/octet-stream",
+    ) -> Dict[str, Any]:
+        """
+        Upload an attachment to an existing comment on an issue.
+
+        Args:
+            issue_id: The issue ID or readable ID
+            comment_id: The comment ID to attach the file to
+            filename: Name of the file to attach
+            file_bytes: Raw file content
+            mime_type: MIME type of the file
+
+        Returns:
+            The created attachment data
+
+        Raises:
+            YouTrackAPIError: If the API returns no attachment data
+        """
+        endpoint = (
+            f"issues/{issue_id}/comments/{comment_id}/attachments"
+            "?fields=id,name,mimeType,size"
+        )
+        files = {"file": (filename, file_bytes, mime_type)}
+        response = self.client.post_multipart(endpoint, files=files)
+        return self._first_attachment(response)
+
+    @staticmethod
+    def _first_attachment(response: Any) -> Dict[str, Any]:
+        """This endpoint returns a JSON array even for a single-file upload, so take the first element."""
+        if isinstance(response, list):
+            if not response:
+                raise YouTrackAPIError(
+                    "YouTrack returned no attachment data for the upload"
+                )
+            return response[0]
+        return response
 
     def _get_internal_id(self, issue_id: str) -> str:
         """Convert issue ID to internal format if needed."""
