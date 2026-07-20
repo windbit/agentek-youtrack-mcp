@@ -19,6 +19,8 @@ permissions:
 
 jobs:
   test:
+    # Форк-PR не пускаем на self-hosted раннер: там docker, то есть root на хосте.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     name: "🧪 Tests"
     runs-on: [self-hosted, agentek]
     steps:
